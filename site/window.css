@@ -1,0 +1,623 @@
+/* THROWAWAY RENDER. Control styles imitating macOS 26 (Tahoe), measured by eye from
+   Design/Screenshots/v1.1. Sizes follow the app's own constants where the code has them
+   (Cue/SettingSection.swift WindowMetrics, Shared/FrameRenderer.swift Layout). */
+
+/* One motion for everything, as Cue/Motion.swift's Animation.expand: SwiftUI .smooth(duration: 0.4),
+   a critically damped spring. Sampled into linear(); 0.62 s is where it comes within 0.1% of rest. */
+:root {
+  --expand: linear(0, 0.0631 4.2%, 0.1954 8.3%, 0.3436 12.5%, 0.4825 16.7%, 0.6018 20.8%, 0.6990 25%, 0.7757 29.2%, 0.8347 33.3%, 0.8793 37.5%, 0.9126 41.7%, 0.9371 45.8%, 0.9549 50%, 0.9679 54.2%, 0.9772 58.3%, 0.9839 62.5%, 0.9887 66.7%, 0.9920 70.8%, 0.9944 75%, 0.9961 79.2%, 0.9973 83.3%, 0.9981 87.5%, 0.9987 91.7%, 0.9991 95.8%, 1 100%);
+  --t: 0.62s;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; }
+body { font-size: 13px; line-height: 16px; color: var(--label); -webkit-font-smoothing: antialiased; }
+button, input, select { font: inherit; color: inherit; }
+
+/* ---------- Desktop ---------- */
+/* The theme lives on the desktop element */
+/* Behind the wallpaper, and the page's own background (which Safari also uses for its toolbar): fixed
+   neutral greys, light and dark. Colours worked out from the wallpaper were tried on 2026-10-15 and
+   dropped the same day: too dark in Safari's toolbar, stale between pages, and fragile. */
+/* iOS 26 Safari (simulator, 2026-10-16): behind the status bar and the bottom toolbar it shows only content
+   that scrolls with the document, never a position: fixed layer like .desktop; otherwise this colour.
+   Tried and not enough on their own: viewport-fit=cover, a 100lvh wallpaper pulled past both edges,
+   and the wallpaper as this element's background image. */
+html { background: rgb(236 236 236); }
+html[data-theme=dark] { background: rgb(30 30 30); }
+.desktop { position: fixed; inset: 0; background: rgb(236 236 236); color: var(--label); }  /* colour set here, where the theme is: inherited from <body> it stayed light-mode black */
+.desktop[data-theme=dark] { background: rgb(30 30 30); }
+/* Both wallpapers are always there; the theme shows one (the screen cross-fade blends them) */
+.wallpaper { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+.wallpaper-dark { opacity: 0; }
+[data-theme=dark] .wallpaper-dark { opacity: 1; }
+/* Menu bar: measured against Timo's Figma macOS menu bar (552×34), 2026-10-11 */
+:root { --menubar-h: 34px; }
+/* Straight on the wallpaper, untinted; it blurs whatever passes behind it (Timo, 2026-10-14: "just
+   blurs the strip without that gradient"). A tinted bar with a glow was tried and dropped on
+   2026-10-13, and a fade of the page under the bar replaced by this blur. */
+#menubar {
+  -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+  position: absolute; top: 0; left: 0; right: 0; height: var(--menubar-h); padding: 0 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  color: var(--menubar-text); font-size: 14px; font-weight: var(--menubar-weight, 600); z-index: 2;   /* 500 read skinnier than macOS (Timo, 2026-10-13) */
+  text-shadow: 0 0 6px rgb(0 0 0 / 0.08);
+}
+.menubar-icon { background: none; border: 0; padding: 2px; display: grid; place-items: center; cursor: default; color: inherit; }
+/* The mark's plate shows only on hover and while its popover is open, and takes no space: it is drawn
+   behind the icon and spills past it, as macOS draws a menu bar item's highlight (Timo, 2026-10-15).
+   The icons are spaced by their own size. */
+#menubarMark { position: relative; padding: 0; isolation: isolate; }
+#menubarMark::before { content: ""; position: absolute; z-index: -1; inset: -5px -10px; border-radius: 999px;
+  background: rgb(255 255 255 / 0.18); opacity: 0; transition: opacity .2s ease; }
+#menubarMark:hover::before { opacity: 1; }
+/* The page scrolls over the fixed wallpaper; the menu bar stays put above it */
+.page { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; z-index: 1;
+ }
+#menubar { z-index: 3; }
+/* The window's area is one screen tall below the menu bar, wherever the page has scrolled */
+#stageArea { position: relative; height: calc(100vh - var(--menubar-h)); margin-top: var(--menubar-h); }
+.page.with-hero #stageArea { margin-top: 0; }
+
+/* Title block, on the wallpaper, after Timo's two mocks (2026-10-13): beside the window (side) or
+   above it (stack). White in both appearances, as in the mocks. */
+.page.hero-side, .page.hero-stack { overflow: hidden; }
+.page.hero-side.focus, .page.hero-stack.focus { overflow-y: auto; }   /* forward: the page scrolls to what is below */
+.below { display: none; }
+.page.focus .below { display: flex; flex-direction: column; gap: 24px; align-items: center; padding: 8px 24px 120px; }
+.hero { display: none; position: absolute; z-index: 0; color: #fff; text-shadow: 0 1px 18px rgb(40 20 80 / 0.25);
+  /* coming back: the fade starts quickly (ease-out), so the title is visible as it slides out from
+     under the window, the mirror of leaving (Timo, 2026-10-14) */
+  transition: opacity .6s cubic-bezier(.25,1,.5,1), transform var(--t) var(--expand); }
+/* leaving: the fade starts slowly (ease-in), so it is still there as the window slides over it */
+.page.focus .hero { transition: opacity .6s cubic-bezier(.5,0,.75,0), transform var(--t) var(--expand); }
+.page.hero-side .hero, .page.hero-stack .hero { display: flex; flex-direction: column; gap: 28px; }
+.page.hero-side .hero { left: 64px; top: var(--menubar-h); bottom: 0; width: 42vw; justify-content: center; align-items: flex-start; }
+.page.hero-stack .hero { left: 0; right: 0; top: calc(var(--menubar-h) + 7vh); align-items: center; text-align: center; }
+/* Headlines in the rounded face, like the card (Timo, 2026-10-13). Safari has it as ui-rounded;
+   other browsers fall back until a web font is chosen. */
+.hero h1, .hero .tagline { font-family: var(--font-rounded); }
+.hero h1 { font-size: clamp(48px, 5.4vw, 96px); line-height: 1; font-weight: 700; letter-spacing: -0.02em; margin: 0; }
+/* Tagline: regular weight at 70%, no tracking, tucked closer under the title (Timo's inspector
+   edits, 2026-10-15; his line-height 0.5 on the title was a quick way to that closer spacing) */
+.hero .tagline { font-size: clamp(24px, 2.7vw, 44px); line-height: 1.15; font-weight: 400; margin: 0; max-width: 16em; opacity: .7; }
+.hero h1 + .tagline { margin-top: -16px; }
+/* Side by side: about a fifth smaller (Timo, 2026-10-14) */
+.page.hero-side .hero h1 { font-size: clamp(40px, 4.3vw, 76px); }
+.page.hero-side .hero .tagline { font-size: clamp(20px, 2.15vw, 35px); }
+/* Going forward, the title travels the way the window comes from, so the window slides over it
+   before it has faded (Timo, 2026-10-14: "overlapping each other a little bit more"). It moves on the
+   window's spring; its fade starts slowly (ease-in) so the overlap is visible. Coming back, the same
+   in reverse. */
+.page.hero-side.focus .hero { opacity: 0; transform: translateX(16vw) scale(.94); pointer-events: none; }
+.page.hero-stack.focus .hero { opacity: 0; transform: translateY(14vh) scale(.94); pointer-events: none; }
+/* Apple's badge as supplied; 40 px tall is Apple's minimum on screen */
+.store-badge { display: inline-block; line-height: 0; text-shadow: none; }
+.store-badge img { height: 44px; width: auto; display: block; }
+.store-after { display: none; }
+.hero-icon { display: none; }
+.mobile .hero-icon { display: block; width: 56px; height: 56px; }
+.hero-icon img { width: 100%; height: 100%; display: block; }
+.nav-title, .top-blur { display: none; }
+.mobile .hero .store-badge { display: none; }
+.mobile .store-after { display: flex; justify-content: center; padding: 0 16px 40px; }
+
+/* Resting: a click on the window brings it forward rather than reaching a control */
+.window-catch { position: absolute; inset: 0; z-index: 100; cursor: pointer; }
+.page.focus .window-catch, .page:not(.hero-side):not(.hero-stack) .window-catch { display: none; }
+/* The way back, placed next to the centred window by window.js: an arrow pointing to where the
+   title is (left beside it, up when stacked), or a × at the window's corner (?close=x). After
+   Timo's mock, 2026-10-13. It arrives from the direction it points. */
+.focus-close { position: absolute; z-index: 4; left: 0; top: 0; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%; border: 0;
+  background: #fff; color: #3d2470; box-shadow: 0 4px 16px rgb(40 20 80 / 0.25); display: grid; place-items: center; cursor: pointer;
+  opacity: 0; pointer-events: none; transition: opacity .3s ease-in-out, translate .5s var(--expand); }
+.focus-close:hover { background: #f2eefa; }
+/* Dark: the window's own background with a white glyph (Timo, 2026-10-14) */
+[data-theme=dark] .focus-close { background: var(--window); color: #fff; box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08), 0 4px 16px rgb(0 0 0 / 0.4); }
+[data-theme=dark] .focus-close:hover { background: color-mix(in srgb, var(--window) 88%, #fff); }
+.focus-close-label { display: none; }
+/* ?close=pill: a labelled capsule under the window, after Timo's mock (2026-10-13) */
+.focus-close.pill { width: auto; height: 44px; margin: -22px 0 0 0; translate: -50% 16px; padding: 0 20px 0 14px; border-radius: 22px; display: flex; align-items: center; gap: 8px;
+  color: #1d1d1f; font-size: 17px; font-weight: 500; }
+.page.focus ~ .focus-close.pill { translate: -50% 0 !important; }
+.focus-close.pill .focus-close-label { display: inline; }
+.focus-close.pill svg { width: 20px; height: 20px; border-radius: 50%; background: #1d1d1f; color: #fff; padding: 5px; box-sizing: border-box; }
+[data-theme=dark] .focus-close.pill { color: #fff; }
+[data-theme=dark] .focus-close.pill svg { background: #fff; color: var(--window); }
+.page.focus ~ .focus-close { opacity: 1; pointer-events: auto; translate: 0 0 !important; }
+
+/* Progressive blur at the bottom edge while there is more page below: stacked layers, each blurring
+   more and masked to a band lower down, so the blur deepens towards the edge. Fades away at the end. */
+.bottom-blur { position: absolute; left: 0; right: 0; bottom: 0; height: 128px; z-index: 2; pointer-events: none; transition: opacity .3s ease-in-out; }
+.bottom-blur.done { opacity: 0; }
+.bottom-blur { display: none; }
+.page.hero-stack ~ .bottom-blur { display: block; }   /* only where the window runs off the bottom */
+.page.focus ~ .bottom-blur { display: block; }   /* forward: shows while there is more page below (updateBlur) */
+.bottom-blur i { position: absolute; inset: 0; display: block; }
+.bottom-blur i:nth-child(1) { backdrop-filter: blur(1px); -webkit-backdrop-filter: blur(1px); mask: linear-gradient(transparent 0%, #000 25%, #000 50%, transparent 75%); -webkit-mask: linear-gradient(transparent 0%, #000 25%, #000 50%, transparent 75%); }
+.bottom-blur i:nth-child(2) { backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); mask: linear-gradient(transparent 25%, #000 50%, #000 75%, transparent 100%); -webkit-mask: linear-gradient(transparent 25%, #000 50%, #000 75%, transparent 100%); }
+.bottom-blur i:nth-child(3) { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); mask: linear-gradient(transparent 50%, #000 75%, #000 100%); -webkit-mask: linear-gradient(transparent 50%, #000 75%, #000 100%); }
+.bottom-blur i:nth-child(4) { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); mask: linear-gradient(transparent 75%, #000 100%); -webkit-mask: linear-gradient(transparent 75%, #000 100%); }
+
+/* ---------- Window ---------- */
+#window {
+  background: var(--window); border-radius: 16px; box-shadow: var(--window-shadow);
+  width: 1440px; position: absolute; left: 0; top: 0; overflow: hidden;   /* placed by window.js (placeWindow) */
+  display: flex; flex-direction: column;
+  transform-origin: 0 0; will-change: transform;
+}
+.titlebar { height: 32px; display: flex; align-items: center; gap: 12px; padding: 0 14px; position: absolute; top: 0; left: 0; right: 0; }
+.lights { display: flex; gap: 8px; }
+.lights i { width: 12px; height: 12px; border-radius: 50%; display: block; box-shadow: inset 0 0 0 0.5px rgb(0 0 0 / 0.12); }
+.lights .red { background: #ff5f57; } .lights .yellow { background: #febc2e; } .lights .green { background: #28c840; }
+.titlebar .title { font-weight: 700; font-size: 13px; }
+
+.columns { display: flex; padding-top: 32px; flex: 1; min-height: 0; }
+.sidebar { width: 390px; flex: none; padding: 0 24px 24px; border-right: 1px solid var(--separator); margin-top: -32px; padding-top: 56px;
+  /* Fixed window height: the sidebar scrolls instead of the window growing. Content passing under
+     the title bar fades out, like the system's scroll edge effect. */
+  overflow-y: auto; overscroll-behavior: contain;
+  -webkit-mask: linear-gradient(to bottom, transparent 30px, #000 54px); mask: linear-gradient(to bottom, transparent 30px, #000 54px); }
+.detail { flex: 1; padding: 24px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+
+.group-heading { font-size: 15px; font-weight: 600; height: 28px; display: flex; align-items: center; margin-bottom: 10px; }
+.callout { font-size: 12px; line-height: 15px; }
+.caption2 { font-size: 10px; }
+
+.card { background: var(--fill-quinary); border-radius: 12px; }
+.setting-card { display: flex; align-items: center; gap: 12px; padding: 10px 14px; min-height: 44px; }
+
+/* Section: icon, title, switch; options beneath a divider */
+.section { background: var(--fill-quinary); border-radius: 12px; }
+.section-head { display: flex; align-items: center; gap: 10px; padding: 10px 12px; }
+.section-body { display: flex; flex-direction: column; gap: 10px; padding: 10px 12px; margin: 0; position: relative; }
+.section-body::before { content: ""; position: absolute; top: 0; left: 12px; right: 12px; border-top: 1px solid var(--separator); }
+
+/* Things that appear grow into place and push their neighbours; nothing pops. The 0fr→1fr grid
+   track is what lets a height (or width) animate to "whatever the content needs". */
+.expander, .cy { display: grid; grid-template-rows: 1fr; transition: grid-template-rows var(--t) var(--expand), opacity var(--t) var(--expand), margin var(--t) var(--expand); }
+.expander > .reveal, .cy > .reveal { overflow: hidden; min-height: 0; }
+.section.off .expander { grid-template-rows: 0fr; opacity: 0; }
+.cy > .reveal { padding: 3px; margin: -3px; }               /* room for the focus ring */
+.cy:not(.open) { grid-template-rows: 0fr; opacity: 0; margin-top: -10px; } /* -gap: closes the gap too */
+.cx { display: inline-grid; grid-template-columns: 1fr; transition: grid-template-columns var(--t) var(--expand), opacity var(--t) var(--expand), margin var(--t) var(--expand); }
+.cx > .reveal { overflow: hidden; min-width: 0; padding: 3px; margin: -3px; display: flex; justify-content: flex-end; }
+.cx:not(.open) { grid-template-columns: 0fr; opacity: 0; margin-left: -8px; }
+/* Two controls sharing one place cross-fade in it */
+.swap { display: grid; align-items: center; }
+.swap > * { grid-area: 1 / 1; transition: opacity calc(var(--t) * .6) var(--expand), visibility 0s; }
+.swap > :not(.open) { opacity: 0; visibility: hidden; transition: opacity calc(var(--t) * .6) var(--expand), visibility 0s calc(var(--t) * .6); }
+.row-line { display: flex; align-items: center; gap: 8px; justify-content: space-between; min-height: 22px; }
+
+.section-icon {
+  width: 28px; height: 28px; border-radius: 7.3px; flex: none; display: grid; place-items: center;
+  background: var(--tint); transition: background-color var(--t) var(--expand);
+  box-shadow: inset 0 0.5px 0 rgb(255 255 255 / 0.35), inset 0 0 0 0.5px rgb(0 0 0 / 0.06);
+}
+.section-icon svg { width: 16px; height: 16px; }
+.section-icon img { width: 15px; height: 15px; object-fit: contain; }
+.section.off .section-icon { background: color-mix(in srgb, var(--label-2) 60%, transparent); }
+
+/* Switch (macOS 26: wider track, capsule knob) */
+.switch {
+  appearance: none; margin: 0; width: 50px; height: 24px; border-radius: 12px; flex: none;
+  background: var(--switch-off); position: relative; transition: background-color .2s; cursor: default;
+}
+.switch::after {
+  content: ""; position: absolute; top: 2px; left: 2px; width: 30px; height: 20px; border-radius: 10px;
+  background: #fff; box-shadow: 0 1px 2px rgb(0 0 0 / 0.2), 0 0 0 0.5px rgb(0 0 0 / 0.04);
+  transition: transform .2s cubic-bezier(.3,.7,.4,1);
+}
+.switch:checked { background: var(--color-accent); }
+.switch:checked::after { transform: translateX(16px); }
+.switch:focus-visible, .checkbox:focus-visible, .radio:focus-visible { outline: 3px solid color-mix(in srgb, var(--color-accent) 50%, transparent); outline-offset: 1px; }
+
+/* Checkbox */
+.checkbox {
+  appearance: none; margin: 0; width: 14px; height: 14px; border-radius: 4px; flex: none;
+  background: var(--field); box-shadow: inset 0 0 0 1px var(--field-border), 0 0.5px 1px rgb(0 0 0 / 0.1);
+  display: grid; place-items: center; cursor: default;
+}
+.checkbox, .radio { transition: background-color .2s var(--expand), box-shadow .2s; }
+.checkbox::after, .radio::after { transition: transform .25s var(--expand), opacity .2s; }
+.checkbox:not(:checked)::after { content: ""; opacity: 0; transform: translateY(-1px) rotate(-45deg) scale(.4); width: 7px; height: 4px; border: solid #fff; border-width: 0 0 1.8px 1.8px; }
+.radio:not(:checked)::after { content: ""; opacity: 0; transform: scale(.3); width: 5px; height: 5px; border-radius: 50%; background: #fff; }
+.checkbox:checked { background: var(--color-accent); box-shadow: none; }
+.checkbox:checked::after {
+  content: ""; width: 7px; height: 4px; border: solid #fff; border-width: 0 0 1.8px 1.8px;
+  transform: translateY(-1px) rotate(-45deg);
+}
+
+/* Radio */
+.radio {
+  appearance: none; margin: 0; width: 14px; height: 14px; border-radius: 50%; flex: none;
+  background: var(--field); box-shadow: inset 0 0 0 0.5px var(--field-border), 0 0.5px 1px rgb(0 0 0 / 0.1);
+  display: grid; place-items: center; cursor: default;
+}
+.radio:checked { background: var(--color-accent); box-shadow: none; }
+.radio:checked::after { content: ""; width: 5px; height: 5px; border-radius: 50%; background: #fff; }
+
+/* Pop-up button: a native <select> underneath, so the menu is the browser's own */
+.popup { position: relative; display: inline-flex; flex: none; }
+.popup select {
+  appearance: none; border: 0; background: var(--control); border-radius: 6px;
+  height: 24px; padding: 0 30px 0 12px; font-size: 13px; cursor: default; outline: none;
+  transition: width var(--t) var(--expand), background-color .15s;
+}
+.popup select:hover { background: var(--control-hover); }
+.popup select:focus-visible { box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 50%, transparent); }
+.popup::after {
+  content: ""; position: absolute; right: 10px; top: 50%; width: 8px; height: 11px; margin-top: -5.5px; pointer-events: none;
+  background: currentColor; opacity: .75;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 11'%3E%3Cpath d='M1 4l3-3 3 3M1 7l3 3 3-3' fill='none' stroke='black' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 11'%3E%3Cpath d='M1 4l3-3 3 3M1 7l3 3 3-3' fill='none' stroke='black' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+
+/* Text field */
+.field {
+  height: 22px; border-radius: 6px; border: 0; padding: 0 7px; background: var(--field); min-width: 0;
+  box-shadow: inset 0 0 0 0.5px var(--field-border), 0 0.5px 1px rgb(0 0 0 / 0.06); outline: none;
+}
+.field:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 45%, transparent), inset 0 0 0 0.5px var(--color-accent); }
+.field::placeholder { color: var(--label-3); }
+
+/* Stepper */
+.stepper { display: inline-flex; flex-direction: column; width: 16px; height: 26px; border-radius: 6px; overflow: hidden;
+  background: var(--button); box-shadow: inset 0 0 0 0.5px var(--field-border), 0 0.5px 1px rgb(0 0 0 / 0.1); }
+.stepper button { flex: 1; border: 0; background: none; padding: 0; color: var(--label); display: grid; place-items: center; cursor: default; }
+.stepper svg { width: 8px; height: 5px; }
+.stepper button:active { background: var(--control); }
+
+/* Push buttons */
+.push {
+  display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 6px; border: 0; cursor: default;
+  background: var(--button); box-shadow: 0 0 0 0.5px var(--button-border), 0 0.5px 1.5px rgb(0 0 0 / 0.14); font-size: 13px; white-space: nowrap;
+  overflow: hidden; transition: width var(--t) var(--expand), background-color var(--t) var(--expand);
+}
+.push:active { filter: brightness(.94); }
+.push.prominent { background: var(--color-sys-orange); color: #fff; box-shadow: 0 0.5px 1.5px rgb(0 0 0 / 0.14); }
+.push.prominent.resume { background: var(--color-sys-green); }
+
+/* List box in the Status card */
+.listbox { background: var(--listbox); border-radius: 6px; box-shadow: inset 0 0 0 0.5px var(--field-border); padding: 4px; width: 190px; }
+.listbox .row { height: 22px; display: flex; align-items: center; padding-left: 22px; border-radius: 4px; position: relative; }
+.listbox .row.selected { background: var(--listbox-selected); }
+.listbox .check { position: absolute; left: 7px; font-size: 11px; }
+
+/* Toolbar over the preview */
+.toolbar { height: 28px; display: flex; align-items: center; gap: 8px; }
+.status-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--color-sys-green); transition: background-color var(--t) var(--expand); }
+#statusText { display: inline-block; white-space: nowrap; overflow: hidden; transition: width var(--t) var(--expand); }
+
+/* Pause reason row: only while paused, slides open */
+.reason-row { display: grid; grid-template-rows: 0fr; transition: grid-template-rows var(--t) var(--expand), margin var(--t) var(--expand), opacity var(--t) var(--expand); margin-bottom: -10px; opacity: 0; }
+.reason-row > * { overflow: hidden; min-height: 0; }
+.reason-row.open { grid-template-rows: 1fr; margin-bottom: 0; opacity: 1; }
+.reason-card { display: flex; align-items: center; gap: 8px; padding: 0 12px; height: 42px; }
+
+.emoji-button { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--control); font-size: 13px; }
+
+/* ---------- The preview: a 1280×720 stage scaled to fit, as the camera frame is ---------- */
+.preview { position: relative; border-radius: 16px; overflow: hidden; background: rgb(14 19 26); aspect-ratio: 16 / 9; }
+.stage { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; transform-origin: 0 0; overflow: hidden; }
+.source { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.mirrored { transform: scaleX(-1); }
+.frozen { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transform: scale(1); filter: blur(50px);
+  transition: opacity .7s cubic-bezier(.65,0,.35,1), transform .7s cubic-bezier(.65,0,.35,1); }
+.scrim { position: absolute; inset: 0; background: rgb(0 0 0 / 0.2); opacity: 0; transition: opacity .7s; }
+.paused .frozen { opacity: 1; transform: scale(1.8); }
+.paused .scrim { opacity: 1; }
+.empty { position: absolute; inset: 0; display: flex; opacity: 0; transition: opacity var(--t) var(--expand); flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+  font-family: var(--font-rounded); font-weight: 600; color: #fff; }
+.empty .t { font-size: 40px; } .empty .m { font-size: 23px; opacity: .45; }
+.source { transition: opacity var(--t) var(--expand); }
+.stopped .source, .stopped .frozen, .stopped .scrim { opacity: 0; }
+.stopped .empty { opacity: 1; }
+
+/* The card, in the renderer's own units (Shared/FrameRenderer.swift) */
+/* The card is moved frame by frame in window.js (a port of the renderer's CardTransition), not by CSS */
+.cc-card { position: absolute; background: rgb(9 14 19 / 0.82); color: #fff; font-family: var(--font-rounded); font-weight: 600; }
+.cc-line, .cc-glyph { position: absolute; }
+.cc-line { white-space: pre; }   /* keep the spaces around a compact dot */
+.cc-glyph { height: 21px; }
+.cc-out { opacity: 0 !important; }
+.cc-measure { position: absolute; visibility: hidden; white-space: pre; font-family: var(--font-rounded); font-weight: 600; }
+.cc-sep { color: rgb(255 255 255 / 0.5); letter-spacing: 3px; }
+.cc-compact-glyph { display: inline-block; height: 19px; vertical-align: -2px; margin-right: 8px; }
+
+/* Badge: the canvas fades with the pause (0.7 in, 0.75 out, as pauseDuration/resumeDuration); its
+   own morph is drawn frame by frame in window.js. */
+.cc-badge-canvas { position: absolute; inset: 0; width: 1280px; height: 720px; opacity: 0; transition: opacity .75s cubic-bezier(.65,0,.35,1); }
+.paused .cc-badge-canvas { opacity: 1; transition-duration: .7s; }
+
+/* First paint is instant; everything after it moves. */
+.no-motion, .no-motion *, .no-motion *::after, .no-motion *::before { transition: none !important; }
+
+/* Light/dark: one cross-fade of the whole screen (View Transitions). The browser blends two pictures
+   of the page, so it stays smooth and nothing arrives in stages. Blending the colours themselves
+   repainted the whole page every frame and stuttered on a real screen (Timo, 2026-10-11). */
+:root { --theme-fade: .4s; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: var(--theme-fade); animation-timing-function: ease-in-out; }
+
+/* Appearance toggle: the sun in light, the moon in dark. A tap is a sunset (or a sunrise): a horizon
+   grows out of a dot, one sets behind it, the other rises, the horizon shrinks away (window.js).
+   At rest the hidden one waits below the horizon and the horizon is not drawn. */
+.theme-icon { overflow: visible; position: relative; top: 1.35px; }
+/* top: the box keeps room for the horizon below the sun, which put the sun 1.35 px (at 18 px; 1.25 at 16) above the middle
+   of the clock's capitals (measured). At rest the sun or moon lines up with the text; the horizon
+   sits a little low during the change, which Timo accepted (2026-10-11). */
+.theme-icon .moon, [data-theme=dark] .theme-icon .sun { transform: translateY(20px); }
+[data-theme=dark] .theme-icon .moon { transform: none; }
+.theme-icon .horizon line { stroke-dasharray: 0 2; opacity: 0; }
+
+/* Menu bar mark. The pill moves to the card's corner on the shared curve; live/not-live cross-fades
+   (in the app the swap is instant, but nothing here pops). */
+.mark .mark-pill { transition: transform var(--t) var(--expand); }
+.mark .mark-outlined, .mark .mark-filled { transition: opacity .2s ease-in-out; }
+.mark .mark-filled { opacity: 0; }
+.mark.live .mark-filled { opacity: 1; }
+.mark.live .mark-outlined { opacity: 0; }
+
+/* The menu bar clock changes width (12/24-hour) smoothly, pulling its neighbours along */
+#menubarClock { display: inline-block; white-space: nowrap; text-align: right; transition: width var(--t) var(--expand); }
+
+/* ---------- Phones (window.js sets .mobile under 700 px), after Timo's sketch, 2026-10-14 ----------
+   The video with its card and the controls that visibly change it (Layout, Position); the rest of the
+   settings one tap away in a sheet from the bottom. No window frame, no scroll-to-focus: the page
+   scrolls normally. */
+.sidebar-toggle { display: none; }
+.sheet-scrim { display: none; }
+.mobile .page { overflow-y: auto !important; overflow-x: hidden; }
+.mobile .hero { display: flex !important; position: static; width: auto !important; max-width: none; padding: calc(var(--menubar-h) + 40px) 20px 28px; align-items: center !important; text-align: center; gap: 16px; transform: none !important; opacity: 1 !important; }
+.mobile .hero h1 { font-size: 44px !important; }
+.mobile .hero .tagline { font-size: 21px !important; max-width: 15em; }
+.mobile #stageArea { height: auto; margin: 0; padding: 0 12px 40px; }
+/* On a phone the window stays a window: a small Context Clue window without its sidebar (Timo,
+   2026-10-15), title bar, video and settings inset alike */
+.mobile #window { position: static; transform: none !important; width: auto !important; height: auto !important; overflow: visible;
+  will-change: auto; }   /* will-change: transform made the window the frame for the fixed sheet, so it sat in the page */
+.mobile .reason-row, .mobile .window-catch, .mobile ~ .focus-close, .mobile .bottom-blur { display: none !important; }
+.mobile .titlebar { display: none; }   /* no traffic lights on a phone (Timo, 2026-10-15) */
+.mobile .columns { display: block; padding-top: 0; }
+.mobile .detail { padding: 12px; gap: 12px; }
+/* Phones keep the camera row (Timo, 2026-10-16): status, camera picker and Pause. No resolution and no
+   Stop button; there is no room, and pausing is the action that shows what the app does. */
+.mobile #statusMeta, .mobile #stopButton { display: none; }
+/* Radii on a phone: concentric (Timo, 2026-10-15). The window's radius is the inner one plus the inset
+   between them, so the corners run parallel: 12 + 12 = 24. Change either and keep the sum. */
+.mobile #window { border-radius: calc(12px + 12px); }
+.mobile .preview { border-radius: 12px; }
+/* Layout and Position as one grouped block with a hairline between them (Timo, 2026-10-15), in the
+   window's own card grey now that it sits inside the window. (Tried before: a solid grey block on the
+   wallpaper, and a white one shaded by the video's shadow.) */
+.mobile .appearance-row { flex-direction: column; gap: 0; border-radius: 12px; overflow: hidden; background: var(--fill-quinary); }
+.mobile .appearance-row .setting-card { background: none; border-radius: 0; flex-basis: auto; position: relative; }
+.mobile .appearance-row .setting-card + .setting-card::before { content: ""; position: absolute; top: 0; left: 14px; right: 14px; border-top: 1px solid var(--separator); }
+.mobile .sidebar-toggle { display: grid; place-items: center; position: absolute; z-index: 5; top: 12px; left: 12px; width: 40px; height: 40px; border-radius: 50%; border: 0;
+  background: rgb(0 0 0 / 0.45); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); color: #fff; cursor: pointer; }
+/* the sidebar becomes a sheet */
+.mobile .sidebar { position: fixed; z-index: 21; left: 0; right: 0; bottom: 0; width: auto; max-height: 72vh; margin: 0; padding: 12px 16px 32px; overflow-y: auto;
+  background: var(--window); border-radius: 22px 22px 0 0; border-right: 0; box-shadow: 0 -10px 40px rgb(0 0 0 / 0.25); -webkit-mask: none; mask: none;
+  transform: translateY(105%); transition: transform var(--t) var(--expand); }
+.mobile .sidebar::before { content: ""; display: block; width: 36px; height: 5px; border-radius: 3px; background: var(--label-3); margin: 0 auto 12px; }
+.mobile.sheet-open .sidebar { transform: none; }
+.mobile .sheet-scrim { display: block; position: fixed; inset: 0; z-index: 20; background: rgb(0 0 0 / 0.3); opacity: 0; pointer-events: none; transition: opacity .3s ease-in-out; }
+.mobile.sheet-open .sheet-scrim { opacity: 1; pointer-events: auto; }
+.mobile #menubar { padding: 0 16px; }
+.mobile #menubar > div:first-child > :not(.font-bold, .app-menu-button) { display: none; }
+
+/* ---------- The menu bar item's popover (desktop), after the app's MenuBarView ----------
+   A frosted panel standing in for the system's glass. Opens and closes on the shared spring. */
+#menubarMark.active::before { opacity: 1; background: rgb(255 255 255 / 0.26); }
+.mb-popover { position: absolute; z-index: 30; top: calc(var(--menubar-h) + 6px); left: 0; width: 340px; max-height: calc(100vh - var(--menubar-h) - 16px); overflow-y: auto;
+  padding: 12px 14px 8px; border-radius: 16px; color: var(--label); font-size: 13px; line-height: 16px;
+  background: color-mix(in srgb, var(--window) 74%, transparent); -webkit-backdrop-filter: blur(30px) saturate(1.6); backdrop-filter: blur(30px) saturate(1.6);
+  box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.14), 0 18px 50px rgb(0 0 0 / 0.28);
+  opacity: 0; visibility: hidden; transform: translateY(-6px) scale(.98); transform-origin: top center;
+  transition: opacity .18s ease-in-out, transform var(--t) var(--expand), visibility 0s .18s; }
+.mb-popover.open { opacity: 1; visibility: visible; transform: none; transition: opacity .18s ease-in-out, transform var(--t) var(--expand), visibility 0s; }
+.mobile .mb-popover { display: none; }
+.mb-row { display: flex; align-items: center; gap: 10px; min-height: 34px; }
+.mb-row .grow { flex: 1; }
+.mb-sep { height: 1px; background: var(--separator); margin: 8px 0; }
+.mb-heading { font-weight: 600; color: var(--label-2); margin: 4px 0 8px; }
+.mb-popover .section { background: none; border-radius: 0; }
+.mb-popover .section + .section { border-top: 1px solid var(--separator); }
+.mb-popover .section-head { padding: 6px 0; }
+.mb-popover .section-body { padding: 4px 0 10px; }
+.mb-popover .section-body::before { display: none; }
+.mb-popover .section-icon, .mb-icon { width: 26px; height: 26px; border-radius: 7px; }
+.mb-popover .push { height: 26px; }
+.mb-popover .mb-status .status-dot { flex: none; }
+.mb-preview { position: relative; aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; background: rgb(14 19 26); }
+.name-tag.right { left: auto; right: 6px; }
+.name-tag { position: absolute; left: 6px; bottom: 6px; z-index: 3; font-size: 11px; font-weight: 500; line-height: 14px; color: #fff; background: rgb(0 0 0 / 0.55); padding: 2px 6px; border-radius: 5px; }
+.mb-open { display: block; width: 100%; text-align: left; border: 0; background: none; padding: 6px 0 8px; font-size: 13px; color: var(--label); cursor: default; border-radius: 6px; }
+.mb-open:hover { color: var(--color-accent); }
+
+#menubar a { color: inherit; text-decoration: none; }
+.mobile #menubarMark { display: none; }   /* phones have the settings sheet instead */
+
+/* ---------- The pared-back site (window.js adds .pared; Timo, 2026-10-17) ----------
+   Mobile first, after Timo's Figma design (Happy Supply Co. Assets, node 4542:42439), then the same
+   pieces on desktop: a flat page, a floating nav bar with a menu button, the icon tilted above the name,
+   the app window (desktop) or one card (phones), Apple's black badge. No macOS menu bar, no wallpaper.
+   The menu bar version: spike-snapshot-2026-10-17-menubar/. Values are the design's; page and nav
+   colours sampled from Timo's light and dark renders. */
+
+/* -- every size -- */
+.pared .desktop { --page-bg: #f8f8f8; --nav-ink: rgb(29 29 31); --tagline: rgb(29 29 31 / 0.5);
+  /* the design's elevation: a drop shadow with negative spread, so it shows only below and reads smaller
+     than the box (CSS spread works as Figma's). The style's second drop shadow (0 6 16 6, 5%) is switched
+     off in the design. */
+  --elevation: 0 60px 60px -50px rgb(29 29 31 / 0.2);
+  /* Every container's edges, with or without the drop shadow: Figma style "Beta Styles/Outset (Light &
+     Dark)" (Timo, 2026-10-17): a highlight along the top and a darker line along the bottom, the same in
+     light and dark (light comes from above; in light mode the highlight barely shows, which is right).
+     Inner shadows 0.67 / 0.67. The drop shadow above is from "Elevation High (Light)", whose own inner
+     shadows (0.25, no blur) were read first by mistake and are not used. */
+  --edges: inset 0 0.67px 0.67px rgb(255 255 255 / 0.15), inset 0 -0.67px 0.67px rgb(0 0 0 / 0.05);
+  --bar-top: calc(env(safe-area-inset-top) + 12px);
+  background: var(--page-bg); }
+.pared .desktop[data-theme=dark] { --page-bg: #1b1b1b; --nav-ink: rgb(255 255 255); --tagline: rgb(255 255 255 / 0.5); }
+/* one flat colour, so Safari's status bar and toolbar strips take it too */
+html.pared { background: #f8f8f8; }
+html.pared[data-theme=dark] { background: #1b1b1b; }
+.pared .wallpaper { display: none; }
+
+/* Nav: a floating bar 12 below the top (the status bar on phones) and 12 in from the sides, even all round
+   (Timo, 2026-10-17; the design had 28 at the sides), 44 tall, radius 9.
+   The menu button replaces the name and the links; the clock and the menu bar mark are gone. */
+.pared #menubar { position: fixed; z-index: 30; top: var(--bar-top); left: 12px; right: 12px; height: 44px; padding: 0 16px;
+  border-radius: 9px; background: var(--window); box-shadow: var(--elevation); -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px);
+  color: var(--nav-ink); text-shadow: none; --menubar-text-alpha: 0.75; }
+.pared #menubar > div:first-child > :not(.app-menu-button), .pared #menubarMark, .pared #menubarClock { display: none !important; }
+.pared #themeToggle { opacity: 0.75; }
+.pared .nav-title { display: block; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  font-family: var(--font-rounded); font-size: 12px; line-height: 20px; font-weight: 700; color: var(--nav-ink);
+  opacity: 0; transition: opacity .2s ease-in-out; pointer-events: none; }
+.pared .nav-title.shown { opacity: 1; }
+
+/* The menu button opens a small frosted menu (Home, Privacy Policy, Contact; appmenu.js), after Apple's
+   own site (Timo, 2026-10-16). Open, the lines meet in the middle and then turn into an X; closing runs
+   the same steps backwards. Each line is two boxes so the two steps can be timed apart: the span moves,
+   the i turns. The glyph is the design's: two 14-wide lines, 8 apart. */
+.app-menu, .app-menu-button { display: none; }
+.pared .app-menu-button { display: grid; place-items: center; position: relative; width: 32px; height: 32px; margin-left: -8px; padding: 0; border: 0; background: none; color: inherit; cursor: pointer;
+  opacity: var(--menubar-text-alpha, 1); }
+.pared .app-menu-button span { position: absolute; left: 9px; right: 9px; top: 50%; height: 1.5px; margin-top: -0.75px; transition: transform .18s ease-in-out .18s; }
+.pared .app-menu-button span:first-child { transform: translateY(-4px); }
+.pared .app-menu-button span:last-child { transform: translateY(4px); }
+/* the lines are drawn opaque and the button carries any transparency, so the X doesn't darken where the
+   lines cross (it did with the 85% label colour, 2026-10-16) */
+.pared .app-menu-button i { display: block; height: 100%; border-radius: 1px; background: rgb(from currentColor r g b / 1); transition: transform .18s ease-in-out; }
+.pared .app-menu-button.open span { transform: none; transition-delay: 0s; }
+.pared .app-menu-button.open i { transition-delay: .18s; }
+.pared .app-menu-button.open span:first-child i { transform: rotate(45deg); }
+.pared .app-menu-button.open span:last-child i { transform: rotate(-45deg); }
+.pared .app-menu { display: block; position: fixed; z-index: 40; top: calc(var(--bar-top) + 44px + 6px); left: 12px; min-width: 210px; padding: 5px;
+  border-radius: 12px; background: color-mix(in srgb, var(--window) 80%, transparent); -webkit-backdrop-filter: blur(30px) saturate(1.6); backdrop-filter: blur(30px) saturate(1.6);
+  box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.14), 0 12px 36px rgb(0 0 0 / 0.25); color: var(--label);
+  opacity: 0; visibility: hidden; transform: translateY(-4px) scale(.98); transform-origin: top left;
+  transition: opacity .15s ease-in-out, transform var(--t) var(--expand), visibility 0s .15s; }
+.pared .app-menu.open { opacity: 1; visibility: visible; transform: none; transition: opacity .15s ease-in-out, transform var(--t) var(--expand), visibility 0s; }
+.pared .app-menu a { display: block; padding: 9px 12px; border-radius: 7px; font-size: 16px; line-height: 20px; color: var(--label); text-decoration: none; }
+.pared .app-menu a:hover, .pared .app-menu a:active { background: var(--color-accent); color: #fff; }
+
+/* What scrolls up under the bar softens: the design's blur and fade, ending 9 below the bar (127 in the
+   design, counted from the top of the screen). Measured from the bar, not the screen: in Safari the page
+   starts below the status bar, so a plain 127 reached into the icon and the policy title before any
+   scrolling (2026-10-17). The mask fades the blur out too, so it has no hard lower edge. */
+.pared .top-blur { display: block; position: fixed; z-index: 25; top: 0; left: 0; right: 0; height: calc(var(--bar-top) + 44px + 9px); pointer-events: none;
+  background: linear-gradient(color-mix(in srgb, var(--page-bg) 80%, transparent), transparent);
+  -webkit-backdrop-filter: blur(7.5px); backdrop-filter: blur(7.5px);
+  -webkit-mask: linear-gradient(#000 55%, transparent); mask: linear-gradient(#000 55%, transparent); }
+
+/* The edges are drawn on a layer over each container rather than as its own inner shadow: CSS paints an
+   element's inner shadow under its children, so anything with a background inside (the window's
+   sidebar, a card's rows) would cover the lines. */
+.pared :is(#menubar, .app-menu, .site-footer, #window, .doc-window)::after { content: ""; position: absolute; z-index: 50; inset: 0;
+  border-radius: inherit; box-shadow: var(--edges); pointer-events: none; }
+.pared .site-footer, .pared .mobile #window, .pared .mobile .doc-window { position: relative; }
+
+/* Title block colours and weights, and the window or card with the design's shadow */
+.pared .hero { color: var(--nav-ink); text-shadow: none; }
+.pared .hero h1 { font-weight: 700; }
+.pared .hero .tagline { font-weight: 600; color: var(--tagline); opacity: 1; }
+.pared #window { box-shadow: var(--elevation); }
+/* Quotes under the window (Timo's mock, 2026-10-17): the words in semibold, who said it below in the
+   tagline's grey. Desktop: one row of columns. Phones: a sideways row that snaps, one quote per screen
+   width with the next one peeking in. */
+.quotes { display: none; }
+.pared .quotes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 48px; width: 100%; max-width: 1200px; box-sizing: border-box; padding: 64px 28px 96px; align-self: center; }
+.pared .quote { margin: 0; text-align: center; }   /* each quote centred in its column (Timo, 2026-10-17) */
+.pared .quote blockquote { margin: 0; font-size: 20px; line-height: 1.3; font-weight: 600; color: var(--nav-ink); }
+.pared .quote figcaption { margin-top: 12px; font-size: 20px; line-height: 1.3; color: var(--tagline); }
+/* Under the quotes: a thin rule, then what the app is, set on the page like the quotes, in a reading
+   column lined up with them (Timo, 2026-10-17) */
+.rule, .about { display: none; }
+.pared .rule { display: block; width: 100%; max-width: 1200px; box-sizing: border-box; margin: 0; padding: 0 28px; border: 0; height: auto; overflow: visible; align-self: center; }   /* Tailwind's reset makes an hr 0 high, which hid the line */
+.pared .rule::after { content: ""; display: block; border-top: 1px solid var(--separator); }
+.pared .about { display: block; width: 100%; max-width: 1200px; box-sizing: border-box; padding: 64px 28px 96px; align-self: center; color: var(--label-2); font-size: 17px; line-height: 1.55; }
+.pared .about > * { max-width: 640px; margin-left: auto; margin-right: auto; }   /* the reading column centred under the window and the quotes, its text left-aligned (Timo, 2026-10-17) */
+.pared .about p { margin-top: 0; margin-bottom: 8px; }   /* 8 (Timo, 2026-10-17) */
+.pared .about h3:first-child { margin-top: 0; }
+.pared .about h3 { margin-top: 40px; margin-bottom: 8px; font-size: 20px; line-height: 1.3; font-weight: 600; color: var(--nav-ink); }
+.pared .about ul { margin-top: 0; margin-bottom: 16px; padding-left: 1.2em; list-style: disc; }   /* Tailwind's reset drops the bullets */
+.pared .about li { margin: 0 0 6px; }
+
+/* Footer: a bar like the nav bar, across the page with 12 around it; the two lines stack when they don't
+   fit side by side (Timo, 2026-10-17). */
+.site-footer { display: none; }
+.pared .site-footer { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 2px 16px;
+  margin: 0 12px 12px; min-height: 44px; box-sizing: border-box; padding: 12px 16px; border-radius: 9px;
+  background: var(--window); box-shadow: var(--elevation); font-size: 13px; line-height: 18px; color: var(--tagline); }
+/* desktop: it moves with the nav bar: full width at rest, contracted to 16 past the window while the
+   window is centred, on the same curve at the same moment (Timo, 2026-10-17: "if you have a freakishly
+   large display that can show them both at once, they should move together") */
+.pared .desktop:not(.mobile) .site-footer { margin-left: 12px; width: calc(100% - 24px);
+  transition: margin-left var(--t) var(--expand), width var(--t) var(--expand); }
+.pared .desktop:not(.mobile) .page.focus .site-footer { margin-left: calc(var(--content-left, 28px) - 16px); width: calc(var(--content-w, calc(100vw - 56px)) + 32px); }
+.pared .page.focus .below { padding-bottom: 24px; }
+
+/* -- desktop -- the side-by-side title and window, and scroll-to-focus, as before (Timo, 2026-10-17) */
+.pared .desktop:not(.mobile) { --menubar-h: calc(12px + 44px + 12px); }   /* the bar's band: the window and title stay clear of it */
+/* The nav bar spans the page, 12 in from the sides; while the window is centred it contracts to the
+   window's width, lined up with it, and widens again when the window goes back (Timo, 2026-10-17).
+   window.js fit() sets the window's centred left edge and width. */
+.pared .desktop:not(.mobile) #menubar { left: 12px; right: auto; width: calc(100vw - 24px); box-sizing: border-box;   /* 12 all round at full width, as at the top (Timo, 2026-10-17) */
+  transition: left var(--t) var(--expand), width var(--t) var(--expand); }
+/* contracted, it reaches 16 past the window on each side, its own padding, so the icons in it line up
+   with the window's edges, as on phones the bar's icons line up with the card (Timo, 2026-10-17) */
+.pared .desktop:not(.mobile):has(.page.focus) #menubar { left: calc(var(--content-left, 28px) - 16px); width: calc(var(--content-w, calc(100vw - 56px)) + 32px); }
+.pared .desktop:not(.mobile) .app-menu { left: 12px; transition: left var(--t) var(--expand); }
+.pared .desktop:not(.mobile):has(.page.focus) .app-menu { left: calc(var(--content-left, 28px) - 16px); }
+/* the title block sits 24 above true centre: centred, it read a little low (Timo, 2026-10-17). Extra room
+   below the centred block lifts it by half of that. */
+.pared .desktop:not(.mobile) .page.hero-side .hero { padding-bottom: 48px; }
+/* desktop: the name shows while the window is centred over the title; a beat late, as the window settles */
+.pared .desktop:not(.mobile) .nav-title.shown { transition-delay: .2s; }
+/* the icon at the phone design's size (Timo's desktop mock, 2026-10-17), its tilted box pulled left so the
+   icon lines up with the name */
+.pared .desktop:not(.mobile) .hero-icon { display: grid; place-items: center; width: 123.65px; height: 123.65px; margin: 0 0 -8px -12px; }
+.pared .desktop:not(.mobile) .hero-icon img { width: 100px; height: 100px; transform: rotate(-15.97deg); }
+
+/* -- phones -- one card, the document scrolls */
+html.pared:has(.mobile), html.pared:has(.mobile) body { height: auto; overflow: visible; }
+.pared .desktop.mobile { position: relative; inset: auto; min-height: 100lvh; }
+.pared .mobile .page { position: relative; inset: auto; overflow: visible !important; }
+.pared .mobile #stageArea { padding: 0 28px 28px; }
+/* Title block: icon 100 tilted -15.97° in a 123.65 box, then name 26 and tagline 14, 12 apart; it starts
+   24 below the bar */
+.pared .mobile .hero { padding: calc(var(--bar-top) + 44px + 24px) 28px 28px; gap: 12px; }
+.pared .mobile .hero-icon { width: 123.65px; height: 123.65px; display: grid; place-items: center; }
+.pared .mobile .hero-icon img { width: 100px; height: 100px; transform: rotate(-15.97deg); }
+.pared .mobile .hero h1 { font-size: 26px !important; line-height: normal; letter-spacing: 0; }
+.pared .mobile .hero .tagline { font-size: 14px !important; line-height: normal; max-width: 234px; margin-top: 0; }
+/* Card: radius 30, the video edge to edge. Inner padding as the privacy card's: 24 at the sides, above
+   and below. The rows above and below the video are styled alike: 44 tall, 10 top and bottom, 24 at the
+   sides, so the card adds 14 above and below; 12 between the parts. */
+.pared .mobile #window { border-radius: 30px; }
+.pared .mobile .detail { padding: 14px 0; gap: 12px; }
+.pared .mobile .toolbar { height: auto; min-height: 44px; box-sizing: border-box; padding: 10px 24px; }
+.pared .mobile .appearance-row { background: none; border-radius: 0; }
+.pared .mobile .appearance-row .setting-card { padding: 10px 24px; }
+.pared .mobile .appearance-row .setting-card + .setting-card::before { left: 24px; right: 24px; }
+.pared .mobile .preview { border-radius: 0; }
+/* No camera status on a phone: just the picker (demo or your camera) at the left and Pause at the right */
+.pared .mobile #statusDot, .pared .mobile #statusText, .pared .mobile .toolbar > .grow { display: none; }
+.pared .mobile .toolbar > .popup { margin-right: auto; }
+/* No ellipsis over the video, and so no settings sheet: Layout and Position are enough on a phone */
+.pared .mobile .sidebar-toggle, .pared .mobile .sidebar, .pared .mobile .sheet-scrim { display: none !important; }
+.pared .mobile .below { display: flex; flex-direction: column; gap: 28px; padding: 0 28px 40px; }
+.pared .mobile .quotes { display: flex; gap: 24px; margin: 0 -28px; padding: 16px 28px 24px; max-width: none; width: auto; align-self: stretch;   /* centred, as on desktop, it took its content's width and sat 28 past the edge */
+ 
+  overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 0 28px; scrollbar-width: none; }
+.pared .mobile .quotes::-webkit-scrollbar { display: none; }
+.pared .mobile .quote { flex: 0 0 78%; scroll-snap-align: start; }
+.pared .mobile .quote blockquote, .pared .mobile .quote figcaption { font-size: 17px; }
+.pared .mobile .rule { padding: 0; align-self: stretch; }
+.pared .mobile .about { padding: 40px 0 24px; align-self: stretch; font-size: 15px; }
+.pared .mobile .about h3 { font-size: 17px; margin-top: 32px; }
+/* Badge: Apple's black lockup at its own 40 pt */
+.pared .mobile .store-after { padding: 0 28px 40px; }
+.pared .mobile .store-after .store-badge img { height: 40px; }

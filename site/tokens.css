@@ -1,0 +1,60 @@
+/* Shared colour tokens (macOS 26 system colours and the app's surfaces), light and dark.
+   Both pages link this file. */
+:root {
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  --font-rounded: ui-rounded, "SF Pro Rounded", -apple-system, system-ui, sans-serif;
+  --color-accent: #127dfe;
+  --color-sys-orange: #ff8d28;
+  --color-sys-green: #34c759;
+  --color-sys-mint: #00c8b3;
+  --color-sys-indigo: #6155f5;
+  --color-sys-purple: #cb30e0;
+  --color-sys-pink: #ff2d55;
+  --color-sys-brown: #ac7f5e;
+}
+:root {
+  --window: #ffffff;
+  --label: rgb(0 0 0 / 0.85);
+  --label-2: rgb(0 0 0 / 0.5);
+  --label-3: rgb(0 0 0 / 0.26);
+  --fill-quinary: rgb(0 0 0 / 0.045);
+  --control: rgb(0 0 0 / 0.06);
+  --control-hover: rgb(0 0 0 / 0.09);
+  --separator: rgb(0 0 0 / 0.1);
+  --field: #ffffff;
+  --field-border: rgb(0 0 0 / 0.14);
+  --switch-off: rgb(0 0 0 / 0.09);
+  --button: #ffffff;
+  --button-border: rgb(0 0 0 / 0.08);
+  --listbox: #ffffff;
+  --listbox-selected: rgb(0 0 0 / 0.07);
+  --window-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.18), 0 22px 70px rgb(0 0 0 / 0.30), 0 6px 18px rgb(0 0 0 / 0.12);
+  --menubar: rgb(255 255 255 / 0.0);
+  --menubar-text: #fff;   /* white in both appearances, as macOS: the wallpaper is made dark enough behind it */
+}
+[data-theme=dark] {
+  --color-accent: #0f7cf9;
+  --color-sys-orange: #ff9230;
+  --color-sys-green: #30d158;
+  --color-sys-mint: #00dac3;
+  --color-sys-indigo: #6d7cff;
+  --color-sys-purple: #db34f2;
+  --color-sys-pink: #ff375f;
+  --color-sys-brown: #b78a66;
+  --window: #2b2928;
+  --label: rgb(255 255 255 / 0.86);
+  --label-2: rgb(255 255 255 / 0.55);
+  --label-3: rgb(255 255 255 / 0.25);
+  --fill-quinary: rgb(255 255 255 / 0.05);
+  --control: rgb(255 255 255 / 0.09);
+  --control-hover: rgb(255 255 255 / 0.13);
+  --separator: rgb(255 255 255 / 0.1);
+  --field: rgb(255 255 255 / 0.06);
+  --field-border: rgb(255 255 255 / 0.1);
+  --switch-off: rgb(255 255 255 / 0.14);
+  --button: rgb(255 255 255 / 0.12);
+  --button-border: rgb(255 255 255 / 0.04);
+  --listbox: rgb(0 0 0 / 0.25);
+  --listbox-selected: rgb(255 255 255 / 0.09);
+  --window-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.6), 0 0 0 1px rgb(255 255 255 / 0.08) inset, 0 22px 70px rgb(0 0 0 / 0.5);
+}

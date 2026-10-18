@@ -1,0 +1,7 @@
+#!/bin/bash
+# Checks every file this commit adds or changes (scripts/guard-paths.sh says why).
+set -u
+root=$(git rev-parse --show-toplevel)
+git diff --cached --name-only -z --diff-filter=ACMR | while IFS= read -r -d '' path; do
+  printf '%s\t%s\n' "$path" "$(git cat-file -s ":$path")"
+done | "$root/scripts/guard-paths.sh"

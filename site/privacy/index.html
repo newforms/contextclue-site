@@ -1,0 +1,165 @@
+<!doctype html>
+<!-- Privacy policy, as a document window on the desktop (Timo, 2026-10-15). The text is the policy App
+     Review accepted (cue/Website/context-clue/privacy/), unchanged. It reads without JavaScript:
+     the script runs the clock, the appearance switch, and on phones switches on the phone layout. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy · Context Clue</title>
+<meta name="description" content="Context Clue does not collect, store, or transmit any personal data. No analytics, no tracking, no accounts.">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../window.css">
+<style>
+  /* The document window: the app's frame (traffic lights, title at the left), with the policy inside */
+  .doc-window { position: absolute; z-index: 1; left: 50%; top: calc(var(--menubar-h) + (100vh - var(--menubar-h)) / 2); transform: translate(-50%, -50%);
+    width: min(1100px, calc(100vw - 64px)); height: min(820px, calc(100vh - var(--menubar-h) - 64px));
+    display: flex; flex-direction: column; overflow: hidden; background: var(--window); border-radius: 16px; box-shadow: var(--window-shadow); color: var(--label); }
+  .doc-window .titlebar { position: relative; flex: none; height: 40px; }
+  .doc-body { flex: 1; overflow-y: auto; padding: 16px 48px 64px; }
+  .doc { max-width: 620px; margin: 0 auto; font-size: 15px; line-height: 1.55; }
+  .doc h1 { font-family: var(--font-rounded); font-size: 34px; line-height: 1.1; font-weight: 600; margin: 24px 0 6px; }
+  .doc .meta { color: var(--label-2); font-size: 13px; margin: 0 0 32px; }
+  .doc h2 { font-family: var(--font-rounded); font-size: 20px; line-height: 1.25; font-weight: 600; margin: 32px 0 8px; }
+  .doc p { margin: 0 0 12px; }
+  .doc a { color: var(--color-accent); }
+  .doc .back { display: inline-block; margin-top: 32px; font-size: 13px; }
+  #menubar a { color: inherit; text-decoration: none; }
+  /* Phones: the window fills the width, without traffic lights, as the app window does there */
+  @media (max-width: 699px) {
+    .doc-window { width: calc(100vw - 24px); height: calc(100vh - var(--menubar-h) - 24px); top: calc(var(--menubar-h) + 12px); transform: translateX(-50%); border-radius: 24px; }
+    .doc-window .lights { display: none; }
+    .doc-body { padding: 8px 20px 48px; }
+    .doc h1 { font-size: 28px; margin-top: 12px; }
+    #menubar > div:first-child a:not(.font-bold) { display: none; }
+  }
+  /* Phones with JavaScript: the home page's phone layout (window.css, .pared .mobile), with the policy
+     as one card in it: no title bar, the page scrolls, radius 30 and the same shadow (Timo, 2026-10-17) */
+  .pared .mobile .doc-window { position: relative; transform: none; width: auto; height: auto; overflow: visible;
+    margin: calc(env(safe-area-inset-top) + 12px + 44px + 24px) 28px 40px; border-radius: 30px; box-shadow: var(--elevation); }
+  .pared .doc-window .titlebar { display: none; }
+  /* Desktop: the same card in a page that scrolls, as on phones and on the home page (Timo, 2026-10-17;
+     before, the card was pinned mid-screen and scrolled inside itself). Once the page has scrolled, the
+     nav bar and the footer contract to 16 past the card, as on the home page when the window is centred;
+     back at the top they widen again. The script sets the card's left edge and width. */
+  html.pared, html.pared body { height: auto; overflow: visible; }
+  .pared .desktop { position: relative; inset: auto; min-height: 100vh; display: flow-root; }
+  .pared .desktop:not(.mobile) .doc-window { position: relative; left: auto; top: auto; transform: none; height: auto; overflow: visible;
+    margin: calc(12px + 44px + 24px) auto 24px; border-radius: 30px; box-shadow: var(--elevation); }
+  .pared .desktop:not(.mobile) .doc-body { overflow: visible; }
+  .pared .desktop.scrolled:not(.mobile) #menubar { left: calc(var(--content-left) - 16px); width: calc(var(--content-w) + 32px); }
+  .pared .desktop.scrolled:not(.mobile) .app-menu { left: calc(var(--content-left) - 16px); }
+  .pared .desktop.scrolled:not(.mobile) .site-footer { margin-left: calc(var(--content-left) - 16px); width: calc(var(--content-w) + 32px); }
+  .pared .mobile .doc-body { overflow: visible; padding: 8px 24px 40px; }
+</style>
+</head>
+<body class="font-sans" style="font-family: var(--font-sans)">
+<div id="desktop" class="desktop" data-theme="light">
+  <header id="menubar">
+    <div style="display: flex; align-items: center; gap: 20px">
+      <button type="button" class="app-menu-button" id="appMenuButton" aria-label="Menu" aria-controls="appMenu" aria-expanded="false"><span><i></i></span><span><i></i></span></button>
+      <a class="font-bold app-name" href="../" style="font-weight: 700">Context Clue</a>
+      <a href="./" aria-current="page">Privacy</a><a href="#" data-u="eulctxetnoc" data-d="si.omit" data-subject="Context Clue">Contact</a>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px">
+      <button id="themeToggle" type="button" aria-label="Switch appearance" class="menubar-icon">
+        <svg class="theme-icon" id="themeIcon" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
+          <defs><clipPath id="aboveHorizon"><rect x="-4" y="-6" width="28" height="23.8"/></clipPath></defs>
+          <g clip-path="url(#aboveHorizon)">
+            <g class="sun"><circle cx="10" cy="9" r="3.4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10 1.4v2M10 14.6v2M2.4 9h2M15.6 9h2M4.6 3.6l1.4 1.4M14 13l1.4 1.4M4.6 14.4L6 13M14 5l1.4-1.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></g>
+            <g class="moon"><path transform="translate(10 9.4) scale(.86) translate(-10 -10)" d="M15.8 12.6A6.8 6.8 0 0 1 7.4 4.2a6.8 6.8 0 1 0 8.4 8.4z" fill="none" stroke="currentColor" stroke-width="1.86" stroke-linejoin="round"/></g>
+          </g>
+          <!-- One weight for everything: 1.6 (the moon is drawn at 0.86, so its stroke is 1.6 / 0.86) -->
+          <g class="horizon" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <line x1="10" y1="18.6" x2="1.4" y2="18.6" pathLength="1"/><line x1="10" y1="18.6" x2="18.6" y2="18.6" pathLength="1"/>
+          </g>
+        </svg>
+      </button>
+      <span id="menubarClock"></span>
+    </div>
+    <span class="nav-title" aria-hidden="true">Privacy Policy</span>   <!-- phones: shown once the page title has scrolled under the bar -->
+  </header>
+  <!-- Phones: "Context Clue" opens this menu, as the app menu does on a Mac (appmenu.js) -->
+  <nav class="app-menu" id="appMenu" aria-label="Context Clue">
+    <a href="../">Home</a>
+    <a href="./" aria-current="page">Privacy Policy</a>
+    <a href="#" data-u="eulctxetnoc" data-d="si.omit" data-subject="Context Clue">Contact</a>
+  </nav>
+
+  <div class="top-blur" aria-hidden="true"></div>
+  <main class="doc-window" aria-labelledby="docTitle">
+    <div class="titlebar">
+      <span class="lights" aria-hidden="true"><i class="red"></i><i class="yellow"></i><i class="green"></i></span>
+      <span class="title">Privacy Policy</span>
+    </div>
+    <div class="doc-body">
+      <article class="doc">
+        <h1 id="docTitle">Privacy Policy</h1>
+        <p class="meta">Context Clue · Last updated September 2026</p>
+
+        <h2>No data collected</h2>
+        <p>Context Clue does not collect, store, or transmit any personal data to us. No analytics, no tracking, no accounts, no servers of our own.</p>
+
+        <h2>Your camera</h2>
+        <p>Context Clue works by appearing as a camera of its own. Video from your real camera is processed on your Mac and passed straight through to whichever app you’ve selected it in.</p>
+        <p>Frames are never recorded, never written to disk, and never sent anywhere. The part of Context Clue that handles your video runs as a macOS camera extension with no network access at all. It cannot reach the internet, and that’s enforced by macOS rather than promised by us.</p>
+
+        <h2>Location</h2>
+        <p>If you turn on Location or Weather, Context Clue asks macOS for your approximate location — deliberately coarse, not your precise position. It’s used to show a place name on your card, and to ask Apple’s WeatherKit what the weather is doing there.</p>
+        <p>Apple receives that approximate location in order to answer. We never do. Apple’s handling of it is covered by <a href="https://www.apple.com/legal/privacy/">Apple’s Privacy Policy</a>.</p>
+        <p>If you’d rather not share location at all, you can type a place name yourself and leave Location switched off.</p>
+
+        <h2>Your settings</h2>
+        <p>Everything you configure — what appears on your card, where it sits, your drink count — is stored on your Mac. It doesn’t sync, and it’s never sent to us.</p>
+
+        <h2>Purchases</h2>
+        <p>Removing the watermark is a one-time purchase made through Apple’s App Store. Apple handles the payment; the app only learns whether the purchase was made. We never see your payment method, your Apple Account, or who you are.</p>
+
+        <h2>Third parties</h2>
+        <p>No third-party SDKs, advertising networks, or analytics services are used. Weather comes from Apple’s WeatherKit and the purchase goes through Apple; that’s the complete list of services involved.</p>
+
+        <h2>Contact</h2>
+        <p>Questions? <a class="email-text" href="#" data-u="eulctxetnoc" data-d="si.omit" data-subject="Context Clue privacy question">contextclue at timo dot is</a></p>
+
+        <a class="back" href="../">← Context Clue</a>
+      </article>
+    </div>
+  </main>
+  <!-- Footer: a bar like the nav bar, across the page (Timo, 2026-10-17); the two lines stack when they
+       don't fit side by side -->
+  <footer class="site-footer"><span>Built in Los Angeles by Timo Kuhn</span><span>© 2026 Timo Kuhn</span></footer>
+</div>
+<script src="../theme.js"></script>
+<script>
+  // The clock, the appearance switch and the phone layout; the page reads fully without this.
+  (() => {
+    const desk = document.getElementById("desktop"), clock = document.getElementById("menubarClock");
+
+    // Switch on the home page's pared-back layout (phones: its phone layout), and fade the page's name into
+    // the nav bar once its title has scrolled under the bar (as window.js does on the home page)
+    document.documentElement.classList.add("pared");
+    document.querySelector("meta[name=viewport]").content += ", viewport-fit=cover";
+    const title = document.getElementById("docTitle"), navTitle = document.querySelector(".nav-title"), bar = document.getElementById("menubar");
+    const card = document.querySelector(".doc-window");
+    const layout = () => {
+      desk.classList.toggle("mobile", innerWidth < 700);
+      navTitle.classList.toggle("shown", title.getBoundingClientRect().bottom < bar.getBoundingClientRect().bottom);
+      // desktop: the bars contract to the card once the page has scrolled (CSS above)
+      const r = card.getBoundingClientRect();
+      desk.style.setProperty("--content-left", `${r.left}px`); desk.style.setProperty("--content-w", `${r.width}px`);
+      desk.classList.toggle("scrolled", scrollY > 0);
+    };
+    layout(); addEventListener("resize", layout); addEventListener("scroll", layout, { passive: true });
+
+    const tick = () => { clock.textContent = new Date().toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" }); };
+    tick(); setInterval(tick, 10000);
+    // Light and dark as on the home page, with the same switch and sunset (theme.js)
+    const setTheme = to => { desk.dataset.theme = to; document.documentElement.dataset.theme = to; };
+    setTheme(siteTheme.initial);
+    siteTheme.start(setTheme);
+  })();
+</script>
+<script src="../email.js"></script>
+<script src="../appmenu.js"></script>
+</body>
+</html>

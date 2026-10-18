@@ -1,0 +1,19 @@
+# Never in this repository (scripts/guard-paths.sh enforces it on commit and push):
+# design working files, wallpaper sources, raw footage, render comparisons and old snapshots.
+Design/
+wallpaper/
+footage/
+spike-snapshot-*/
+site/compare/
+*.psd
+*.sketch
+*.fig
+*.mov
+*.braw
+*.r3d
+*.mxf
+
+# Local tooling and macOS clutter
+.claude/
+.DS_Store
+node_modules/
