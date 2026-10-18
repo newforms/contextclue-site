@@ -459,9 +459,9 @@ html[data-theme=dark] { background: rgb(30 30 30); }
   --bar-top: calc(env(safe-area-inset-top) + 12px);
   background: var(--page-bg); }
 .pared .desktop[data-theme=dark] { --page-bg: #1b1b1b; --nav-ink: rgb(255 255 255); --tagline: rgb(255 255 255 / 0.5); }
-/* Dark mode: the edges' bottom shade at 15% instead of 5%, as black at 5% barely shows on a dark container
-   (Timo, 2026-10-18). The top highlight is the same in both. */
-.pared .desktop[data-theme=dark] { --edges: inset 0 0.67px 0.67px rgb(255 255 255 / 0.15), inset 0 -0.67px 0.67px rgb(0 0 0 / 0.15); }
+/* Dark mode: the edges' bottom shade at 25% instead of 5%, as black at 5% barely shows on a dark container
+   (Timo, 2026-10-18; 15% tried first). The top highlight is the same in both. */
+.pared .desktop[data-theme=dark] { --edges: inset 0 0.67px 0.67px rgb(255 255 255 / 0.15), inset 0 -0.67px 0.67px rgb(0 0 0 / 0.25); }
 /* one flat colour, so Safari's status bar and toolbar strips take it too */
 html.pared { background: #f8f8f8; color-scheme: light; }
 html.pared[data-theme=dark] { background: #1b1b1b; color-scheme: dark; }
