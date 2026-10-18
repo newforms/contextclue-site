@@ -16,8 +16,22 @@ window.siteTheme = (() => {
   const initial = chosenTheme() || (systemDark.matches ? "dark" : "light");
   let current = initial, apply = () => {};
 
+  // The browser's own bars, tinted to the page's appearance: theme-color for browsers that read it (Chrome
+  // on Android tints its toolbar with it). Safari 26 ignores it; its strip behind the status bar comes from
+  // .safari-tint (window.css), read once when the page loads. Nothing tried made it re-read after a switch
+  // (a new or hidden-and-shown strip, theme-color, color-scheme, scrolling; iOS 26.2 simulator,
+  // 2026-10-18), so after a switch the strip matches again on the next page or reload. The two colours are
+  // the page backgrounds in window.css (html.pared).
+  const PAGE = { light: "#f8f8f8", dark: "#1b1b1b" };
+  function tintSafari(to) {
+    let tag = document.querySelector('meta[name="theme-color"]');
+    if (!tag) { tag = document.createElement("meta"); tag.name = "theme-color"; document.head.append(tag); }
+    tag.content = PAGE[to];
+  }
+
   function start(applyTheme, now = initial) {
-    apply = applyTheme; current = now;
+    apply = to => { applyTheme(to); tintSafari(to); };
+    current = now; tintSafari(now);
     $("#themeToggle").addEventListener("click", () => {
       const to = current === "dark" ? "light" : "dark";
       try { sessionStorage.setItem(THEME_KEY, to); } catch {}

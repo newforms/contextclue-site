@@ -460,8 +460,8 @@ html[data-theme=dark] { background: rgb(30 30 30); }
   background: var(--page-bg); }
 .pared .desktop[data-theme=dark] { --page-bg: #1b1b1b; --nav-ink: rgb(255 255 255); --tagline: rgb(255 255 255 / 0.5); }
 /* one flat colour, so Safari's status bar and toolbar strips take it too */
-html.pared { background: #f8f8f8; }
-html.pared[data-theme=dark] { background: #1b1b1b; }
+html.pared { background: #f8f8f8; color-scheme: light; }
+html.pared[data-theme=dark] { background: #1b1b1b; color-scheme: dark; }
 .pared .wallpaper { display: none; }
 
 /* Nav: a floating bar 12 below the top (the status bar on phones) and 12 in from the sides, even all round
@@ -507,10 +507,19 @@ html.pared[data-theme=dark] { background: #1b1b1b; }
    design, counted from the top of the screen). Measured from the bar, not the screen: in Safari the page
    starts below the status bar, so a plain 127 reached into the icon and the policy title before any
    scrolling (2026-10-17). The mask fades the blur out too, so it has no hard lower edge. */
-.pared .top-blur { display: block; position: fixed; z-index: 25; top: 0; left: 0; right: 0; height: calc(var(--bar-top) + 44px + 9px); pointer-events: none;
+.pared .top-blur { display: block; position: fixed; z-index: 25; top: 0; left: 0; right: 0; height: calc(var(--bar-top) + 44px + 9px); pointer-events: none; }
+/* The look is on a pseudo-element, not the fixed element itself: Safari 26 tints the strip behind the status
+   bar from a fixed element at the top edge, reading that element's own background colour and blur, and a
+   blur with no solid colour made it fall back to the phone's appearance instead of the page's (2026-10-18).
+   Pseudo-elements are not read; .safari-tint below is. */
+.pared .top-blur::before { content: ""; position: absolute; inset: 0;
   background: linear-gradient(color-mix(in srgb, var(--page-bg) 80%, transparent), transparent);
   -webkit-backdrop-filter: blur(7.5px); backdrop-filter: blur(7.5px);
   -webkit-mask: linear-gradient(#000 55%, transparent); mask: linear-gradient(#000 55%, transparent); }
+/* What Safari reads for that strip: a 1 pt solid line of the page colour along the top edge, invisible
+   against the page itself. Without it the strip followed the phone's light/dark, not the site's switch. */
+.safari-tint { display: none; }
+.pared .safari-tint { display: block; position: fixed; z-index: 26; top: 0; left: 0; right: 0; height: 1px; background-color: var(--page-bg); pointer-events: none; }
 
 /* The edges are drawn on a layer over each container rather than as its own inner shadow: CSS paints an
    element's inner shadow under its children, so anything with a background inside (the window's
