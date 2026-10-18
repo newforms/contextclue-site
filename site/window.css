@@ -55,7 +55,10 @@ html[data-theme=dark] { background: rgb(30 30 30); }
  }
 #menubar { z-index: 3; }
 /* The window's area is one screen tall below the menu bar, wherever the page has scrolled */
-#stageArea { position: relative; height: calc(100vh - var(--menubar-h)); margin-top: var(--menubar-h); }
+/* svh, the visible screen with the browser's toolbars showing: on iPad and iPhone Safari, vh counts the screen as
+   if the toolbars were hidden, so the area ran below the visible bottom and the window sat low (Timo's iPad,
+   2026-10-18). On a Mac the two are the same. */
+#stageArea { position: relative; height: calc(100vh - var(--menubar-h)); height: calc(100svh - var(--menubar-h)); margin-top: var(--menubar-h); }
 .page.with-hero #stageArea { margin-top: 0; }
 
 /* Title block, on the wallpaper, after Timo's two mocks (2026-10-13): beside the window (side) or
