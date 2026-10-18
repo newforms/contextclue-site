@@ -2,6 +2,8 @@
 # design working files, wallpaper sources, raw footage, render comparisons and old snapshots.
 Design/
 wallpaper/
+# Timo's exports (e.g. the share image); what the site uses is copied into site/img/
+/img/
 footage/
 spike-snapshot-*/
 site/compare/

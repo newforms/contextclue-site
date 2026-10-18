@@ -14,6 +14,7 @@ while IFS=$'\t' read -r path size; do
   case "$path" in
     Design/*|*/Design/*)           reason="design working file (Design/ never enters git)";;
     wallpaper/*)                   reason="wallpaper source (only the exported files in site/img belong in git)";;
+    img/*)                         reason="Timo's exports folder (copy what the site uses into site/img/)";;
     footage/*|*.mov|*.braw|*.r3d|*.mxf) reason="raw video footage";;
     spike-snapshot-*)              reason="old snapshot of the site";;
     site/compare/*)                reason="render comparison, a working file";;
