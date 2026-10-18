@@ -660,7 +660,9 @@
   };
   const restAt = () => {
     const s = geo.s * REST_SCALE;
-    if (heroMode === "side") return { x: geo.aw * 0.48, y: (geo.ah - geo.height * s) / 2 + 8, s };
+    // 16 above the middle (was 8 below): the window and the title block move up together, 24 each (Timo,
+    // 2026-10-18); the title's offset is in window.css (.pared … .hero padding-bottom)
+    if (heroMode === "side") return { x: geo.aw * 0.48, y: (geo.ah - geo.height * s) / 2 - 16, s };
     if (heroMode === "stack") return { x: (geo.aw - geo.width * s) / 2, y: geo.ah * 0.5, s };
     return focusAt();
   };

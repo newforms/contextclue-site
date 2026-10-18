@@ -590,9 +590,10 @@ html.pared[data-theme=dark] { background: #1b1b1b; color-scheme: dark; }
 .pared .desktop:not(.mobile):has(.page.focus) #menubar { left: calc(var(--content-left, 28px) - 16px); width: calc(var(--content-w, calc(100vw - 56px)) + 32px); }
 .pared .desktop:not(.mobile) .app-menu { left: 12px; transition: left var(--t) var(--expand); }
 .pared .desktop:not(.mobile):has(.page.focus) .app-menu { left: calc(var(--content-left, 28px) - 16px); }
-/* the title block sits 24 above true centre: centred, it read a little low (Timo, 2026-10-17). Extra room
-   below the centred block lifts it by half of that. */
-.pared .desktop:not(.mobile) .page.hero-side .hero { padding-bottom: 48px; }
+/* the title block sits 48 above true centre: centred, it read a little low (Timo, 2026-10-17: 24), and it moved
+   up another 24 with the window (2026-10-18; the window's offset is in window.js restAt). Extra room below the
+   centred block lifts it by half of that. */
+.pared .desktop:not(.mobile) .page.hero-side .hero { padding-bottom: 96px; }
 /* desktop: the name shows while the window is centred over the title; a beat late, as the window settles */
 .pared .desktop:not(.mobile) .nav-title.shown { transition-delay: .2s; }
 /* the icon at the phone design's size (Timo's desktop mock, 2026-10-17), its tilted box pulled left so the
