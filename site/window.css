@@ -537,7 +537,7 @@ html.pared[data-theme=dark] { background: #1b1b1b; color-scheme: dark; }
    tagline's grey. Desktop: one row of columns. Phones: a sideways row that snaps, one quote per screen
    width with the next one peeking in. */
 .quotes { display: none; }
-.pared .quotes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 48px; width: 100%; max-width: 1200px; box-sizing: border-box; padding: 64px 28px 96px; align-self: center; }
+.pared .quotes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 48px; width: 100%; max-width: 1200px; box-sizing: border-box; padding: 64px 28px; align-self: center; }   /* the same space to the line above and below */
 .pared .quote { margin: 0; text-align: center; }   /* each quote centred in its column (Timo, 2026-10-17) */
 .pared .quote blockquote { margin: 0; font-size: 20px; line-height: 1.3; font-weight: 600; color: var(--nav-ink); }
 .pared .quote figcaption { margin-top: 12px; font-size: 20px; line-height: 1.3; color: var(--tagline); }
@@ -622,11 +622,18 @@ html.pared:has(.mobile), html.pared:has(.mobile) body { height: auto; overflow: 
 /* No ellipsis over the video, and so no settings sheet: Layout and Position are enough on a phone */
 .pared .mobile .sidebar-toggle, .pared .mobile .sidebar, .pared .mobile .sheet-scrim { display: none !important; }
 .pared .mobile .below { display: flex; flex-direction: column; gap: 28px; padding: 0 28px 40px; }
-.pared .mobile .quotes { display: flex; gap: 24px; margin: 0 -28px; padding: 16px 28px 24px; max-width: none; width: auto; align-self: stretch;   /* centred, as on desktop, it took its content's width and sat 28 past the edge */
- 
-  overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 0 28px; scrollbar-width: none; }
+/* Phones: each quote snaps to the middle of the screen with its neighbours peeking in equally on both
+   sides, the first and last ones too (Timo's schematic, 2026-10-18): a quote is 64% of the screen, and the
+   row is padded by the other 36% halved, so the first and last can sit in the middle. In vw, as the row
+   spans the screen: in %, padding and width measure different boxes and the first sat 50 pt off centre. */
+.pared .mobile .quotes { display: flex; gap: 24px; margin: 0 -28px; padding: 24px 18vw; max-width: none; width: auto; align-self: stretch;   /* centred, as on desktop, it took its content's width and sat 28 past the edge */
+  overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
 .pared .mobile .quotes::-webkit-scrollbar { display: none; }
-.pared .mobile .quote { flex: 0 0 78%; scroll-snap-align: start; }
+.pared .mobile .quote { flex: 0 0 64vw; scroll-snap-align: center; }
+/* On phones each quote is a flat container (2026-10-18, on preview for Timo), so the neighbours' edges show
+   at the sides; with only centred text the peeking parts were empty. Edges as every container's. */
+.pared .mobile .quote { position: relative; box-sizing: border-box; padding: 20px 16px; border-radius: 16px; background: var(--window); display: flex; flex-direction: column; justify-content: center; }
+.pared .mobile .quote::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: var(--edges); pointer-events: none; }
 .pared .mobile .quote blockquote, .pared .mobile .quote figcaption { font-size: 17px; }
 .pared .mobile .rule { padding: 0; align-self: stretch; }
 .pared .mobile .about { padding: 40px 0 24px; align-self: stretch; font-size: 15px; }
