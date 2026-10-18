@@ -13,6 +13,15 @@ Preview it locally with any static server, for example:
 python3 -m http.server 8417 --directory site
 ```
 
+## Publishing
+
+Every push publishes the committed `site/` (`.github/workflows/publish.yml` runs `scripts/publish.sh`):
+`main` goes to contextclue.app, any other branch to `preview.contextclue.app/<branch>/`, and deleting a
+branch removes its preview. Previews are public but carry a `robots.txt` that asks not to be indexed.
+Try the script against a local folder with `DEPLOY_DEST=/tmp/x/ scripts/publish.sh publish main`.
+
+## Hooks
+
 After cloning, switch on the hooks that keep design files, raw footage and anything over 5 MB out of the
 history (`scripts/guard-paths.sh` explains why):
 
