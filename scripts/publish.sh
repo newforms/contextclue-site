@@ -48,6 +48,15 @@ stage() {
     echo "refused: the committed site/ has no index.html" >&2
     exit 1
   fi
+  # Every stylesheet and script address gets this commit's id (window.css?v=600a6a6). The server sends no
+  # caching rules, so browsers guess, and Timo's phone kept an old window.css after a publish (2026-10-18):
+  # the page was new, its styles weren't. A new address each publish is fetched at once; between
+  # publishes the cache still works. Only local files: an address with "//" in it is left alone.
+  version=$(git -C "$root" rev-parse --short HEAD)
+  find "$tmp/site" -name '*.html' -print0 | while IFS= read -r -d '' page; do
+    sed -E -i.bak "s#(href|src)=\"([^\"/:]*/)*([^\"/:]+)\.(css|js)\"#\1=\"\2\3.\4?v=$version\"#g" "$page"
+    rm -f "$page.bak"
+  done
 }
 
 case "$mode" in
