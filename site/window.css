@@ -558,6 +558,10 @@ html.pared[data-theme=dark] { background: #1b1b1b; }
   transition: margin-left var(--t) var(--expand), width var(--t) var(--expand); }
 .pared .desktop:not(.mobile) .page.focus .site-footer { margin-left: calc(var(--content-left, 28px) - 16px); width: calc(var(--content-w, calc(100vw - 56px)) + 32px); }
 .pared .page.focus .below { padding-bottom: 24px; }
+/* "Los Angeles" on wider screens, "LA" on phones (Timo, 2026-10-18). By screen width, so it holds without
+   JavaScript too; 699 is the same break as the phone layout. */
+.place-short { display: none; }
+@media (max-width: 699px) { .place-long { display: none; } .place-short { display: inline; } }
 
 /* -- desktop -- the side-by-side title and window, and scroll-to-focus, as before (Timo, 2026-10-17) */
 .pared .desktop:not(.mobile) { --menubar-h: calc(12px + 44px + 12px); }   /* the bar's band: the window and title stay clear of it */
