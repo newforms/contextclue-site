@@ -540,7 +540,7 @@ html.pared[data-theme=dark] { background: #1b1b1b; color-scheme: dark; }
 .pared .quotes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 48px; width: 100%; max-width: 1200px; box-sizing: border-box; padding: 64px 28px; align-self: center; }   /* the same space to the line above and below */
 .pared .quote { margin: 0; text-align: center; }   /* each quote centred in its column (Timo, 2026-10-17) */
 .pared .quote blockquote { margin: 0; font-size: 20px; line-height: 1.3; font-weight: 600; color: var(--nav-ink); }
-.pared .quote figcaption { margin-top: 12px; font-size: 20px; line-height: 1.3; color: var(--tagline); }
+.pared .quote figcaption { margin-top: 8px; font-size: 16px; line-height: 1.3; color: var(--tagline); }   /* smaller than the quote (Timo, 2026-10-18) */
 /* Under the quotes: a thin rule, then what the app is, set on the page like the quotes, in a reading
    column lined up with them (Timo, 2026-10-17) */
 .rule, .about { display: none; }
@@ -634,7 +634,8 @@ html.pared:has(.mobile), html.pared:has(.mobile) body { height: auto; overflow: 
    at the sides; with only centred text the peeking parts were empty. Edges as every container's. */
 .pared .mobile .quote { position: relative; box-sizing: border-box; padding: 20px 16px; border-radius: 16px; background: var(--window); display: flex; flex-direction: column; justify-content: center; }
 .pared .mobile .quote::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: var(--edges); pointer-events: none; }
-.pared .mobile .quote blockquote, .pared .mobile .quote figcaption { font-size: 17px; }
+.pared .mobile .quote blockquote { font-size: 17px; }
+.pared .mobile .quote figcaption { font-size: 14px; }
 .pared .mobile .rule { padding: 0; align-self: stretch; }
 .pared .mobile .about { padding: 40px 0 24px; align-self: stretch; font-size: 15px; }
 .pared .mobile .about h3 { font-size: 17px; margin-top: 32px; }
