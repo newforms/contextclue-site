@@ -401,7 +401,14 @@ html[data-theme=dark] { background: rgb(30 30 30); }
 .mobile .sidebar { position: fixed; z-index: 21; left: 0; right: 0; bottom: 0; width: auto; max-height: 72vh; margin: 0; padding: 12px 16px 32px; overflow-y: auto;
   background: var(--window); border-radius: 22px 22px 0 0; border-right: 0; box-shadow: 0 -10px 40px rgb(0 0 0 / 0.25); -webkit-mask: none; mask: none;
   transform: translateY(105%); transition: transform var(--t) var(--expand); }
-.mobile .sidebar::before { content: ""; display: block; width: 36px; height: 5px; border-radius: 3px; background: var(--label-3); margin: 0 auto 12px; }
+/* The grabber is a button (Timo, 2026-10-22): a tap or a drag down closes the sheet. It stays at the top while
+   the sheet's contents scroll; the bar is drawn in its ::after, the 28 pt around it is the touch area. */
+.sheet-grabber { display: none; }
+.mobile .sheet-grabber { display: block; position: sticky; z-index: 2; top: -12px; width: calc(100% + 32px); height: 28px; margin: -12px -16px 8px;
+  padding: 0; border: 0; border-radius: 22px 22px 0 0; background: var(--window); cursor: grab; touch-action: none; }
+.mobile .sheet-grabber::after { content: ""; position: absolute; left: 50%; top: 12px; width: 36px; height: 5px; margin-left: -18px; border-radius: 3px; background: var(--label-3); }
+.pared .mobile .status-group { display: none; }
+.pared .mobile .card-group-heading { margin-top: 0; }
 .mobile.sheet-open .sidebar { transform: none; }
 .mobile .sheet-scrim { display: block; position: fixed; inset: 0; z-index: 20; background: rgb(0 0 0 / 0.3); opacity: 0; pointer-events: none; transition: opacity .3s ease-in-out; }
 .mobile.sheet-open .sheet-scrim { opacity: 1; pointer-events: auto; }

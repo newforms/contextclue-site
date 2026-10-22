@@ -790,6 +790,28 @@
   });
   $("#sidebarToggle").addEventListener("click", () => $("#desktop").classList.toggle("sheet-open"));
   $("#configureCard").addEventListener("click", () => $("#desktop").classList.add("sheet-open"));
+  // The sheet's grabber (Timo, 2026-10-22): a tap closes the sheet; a drag down moves it with the finger and
+  // closes it past 80 pt or on a quick flick, otherwise it springs back.
+  {
+    const grab = $(".sheet-grabber"), sheet = $(".sidebar");
+    let y0 = null, t0 = 0, dy = 0;
+    grab.addEventListener("pointerdown", e => {
+      y0 = e.clientY; t0 = performance.now(); dy = 0;
+      grab.setPointerCapture(e.pointerId); sheet.style.transition = "none";
+    });
+    grab.addEventListener("pointermove", e => {
+      if (y0 === null) return;
+      dy = Math.max(0, e.clientY - y0); sheet.style.transform = `translateY(${dy}px)`;
+    });
+    const release = () => {
+      if (y0 === null) return;
+      const fast = dy / Math.max(1, performance.now() - t0) > 0.5;   // pt per ms
+      const close = dy < 6 || dy > 80 || fast;                         // under 6 pt counts as a tap
+      y0 = null; sheet.style.transition = ""; sheet.style.transform = "";
+      if (close) $("#desktop").classList.remove("sheet-open");
+    };
+    grab.addEventListener("pointerup", release); grab.addEventListener("pointercancel", () => { dy = 10; release(); });
+  }
   $("#sheetScrim").addEventListener("click", () => $("#desktop").classList.remove("sheet-open"));
   $("#page").addEventListener("scroll", () => placeClose(), { passive: true });
   addEventListener("keydown", e => { if (e.key === "Escape" && focused) setFocus(false); });
