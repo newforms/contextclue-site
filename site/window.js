@@ -789,6 +789,7 @@
     if (e.target === $("#page") || e.target === $("#stageArea") || e.target === $("#below")) setFocus(false);
   });
   $("#sidebarToggle").addEventListener("click", () => $("#desktop").classList.toggle("sheet-open"));
+  $("#configureCard").addEventListener("click", () => $("#desktop").classList.add("sheet-open"));
   $("#sheetScrim").addEventListener("click", () => $("#desktop").classList.remove("sheet-open"));
   $("#page").addEventListener("scroll", () => placeClose(), { passive: true });
   addEventListener("keydown", e => { if (e.key === "Escape" && focused) setFocus(false); });

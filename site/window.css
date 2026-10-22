@@ -627,7 +627,14 @@ html.pared:has(.mobile), html.pared:has(.mobile) body { height: auto; overflow: 
 .pared .mobile #statusDot, .pared .mobile #statusText, .pared .mobile .toolbar > .grow { display: none; }
 .pared .mobile .toolbar > .popup { margin-right: auto; }
 /* No ellipsis over the video, and so no settings sheet: Layout and Position are enough on a phone */
-.pared .mobile .sidebar-toggle, .pared .mobile .sidebar, .pared .mobile .sheet-scrim { display: none !important; }
+.pared .mobile .sidebar-toggle { display: none !important; }
+/* The rest of the card's settings: a "Context Card" row whose Configure button opens the settings sheet
+   (Timo, 2026-10-18; the ellipsis over the video that used to open it stays gone). Phones only. */
+.card-settings-row { display: none !important; }
+.pared .mobile .card-settings-row { display: flex !important; }
+/* a plain button in the dropdowns' grey, no chevron: it opens the sheet rather than offering choices */
+.pared .mobile #configureCard { appearance: none; border: 0; box-shadow: none; background: var(--control); border-radius: 6px; height: 24px; padding: 0 12px; font-size: 13px; color: inherit; }
+.pared .mobile #configureCard:active { background: var(--control-hover); }
 .pared .mobile .below { display: flex; flex-direction: column; gap: 28px; padding: 0 28px 40px; }
 /* Phones: each quote snaps to the middle of the screen with its neighbours peeking in equally on both
    sides, the first and last ones too (Timo's schematic, 2026-10-18): a quote is 64% of the screen, and the
