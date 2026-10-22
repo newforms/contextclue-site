@@ -408,6 +408,9 @@ html[data-theme=dark] { background: rgb(30 30 30); }
   padding: 0; border: 0; border-radius: 22px 22px 0 0; background: var(--window); cursor: grab; touch-action: none; }
 .mobile .sheet-grabber::after { content: ""; position: absolute; left: 50%; top: 12px; width: 36px; height: 5px; margin-left: -18px; border-radius: 3px; background: var(--label-3); }
 .pared .mobile .status-group { display: none; }
+/* No dimming behind the sheet on phones: the video above it stays clear, so the card can be watched while
+   it is set up. The scrim still catches a tap outside the sheet to close it. */
+.pared .mobile .sheet-scrim { background: transparent; }
 .pared .mobile .card-group-heading { margin-top: 0; }
 .mobile.sheet-open .sidebar { transform: none; }
 .mobile .sheet-scrim { display: block; position: fixed; inset: 0; z-index: 20; background: rgb(0 0 0 / 0.3); opacity: 0; pointer-events: none; transition: opacity .3s ease-in-out; }

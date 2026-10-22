@@ -789,7 +789,16 @@
     if (e.target === $("#page") || e.target === $("#stageArea") || e.target === $("#below")) setFocus(false);
   });
   $("#sidebarToggle").addEventListener("click", () => $("#desktop").classList.toggle("sheet-open"));
-  $("#configureCard").addEventListener("click", () => $("#desktop").classList.add("sheet-open"));
+  // Configure (phones): the page glides so the video sits 12 under the nav bar, and the sheet takes only the
+  // space below it, so the card can be watched while it is set up (Timo, 2026-10-22). At least 40% of the
+  // screen, for short screens.
+  $("#configureCard").addEventListener("click", () => {
+    const GAP = 12, bar = $("#menubar").getBoundingClientRect(), video = $("#preview").getBoundingClientRect();
+    scrollTo({ top: scrollY + video.top - (bar.bottom + GAP), behavior: "smooth" });
+    const below = innerHeight - (bar.bottom + GAP + video.height + GAP);
+    $(".sidebar").style.maxHeight = `${Math.max(below, innerHeight * 0.4)}px`;
+    $("#desktop").classList.add("sheet-open");
+  });
   // The sheet's grabber (Timo, 2026-10-22): a tap closes the sheet; a drag down moves it with the finger and
   // closes it past 80 pt or on a quick flick, otherwise it springs back.
   {
