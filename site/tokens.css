@@ -4,6 +4,7 @@
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
   --font-rounded: ui-rounded, "SF Pro Rounded", -apple-system, system-ui, sans-serif;
   --color-accent: #127dfe;
+  --color-sys-red: #ff383c;
   --color-sys-orange: #ff8d28;
   --color-sys-green: #34c759;
   --color-sys-mint: #00c8b3;
@@ -34,6 +35,7 @@
 }
 [data-theme=dark] {
   --color-accent: #0f7cf9;
+  --color-sys-red: #ff4245;
   --color-sys-orange: #ff9230;
   --color-sys-green: #30d158;
   --color-sys-mint: #00dac3;

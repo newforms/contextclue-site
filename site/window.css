@@ -7,6 +7,10 @@
 :root {
   --expand: linear(0, 0.0631 4.2%, 0.1954 8.3%, 0.3436 12.5%, 0.4825 16.7%, 0.6018 20.8%, 0.6990 25%, 0.7757 29.2%, 0.8347 33.3%, 0.8793 37.5%, 0.9126 41.7%, 0.9371 45.8%, 0.9549 50%, 0.9679 54.2%, 0.9772 58.3%, 0.9839 62.5%, 0.9887 66.7%, 0.9920 70.8%, 0.9944 75%, 0.9961 79.2%, 0.9973 83.3%, 0.9981 87.5%, 0.9987 91.7%, 0.9991 95.8%, 1 100%);
   --t: 0.62s;
+  /* The bounce, for the few things that pop in: Cue/Unlock.swift's spring for its pointer, response 0.42 and
+     damping 0.55, sampled the same way. It overshoots by 12.6% of the way travelled; 0.844 s to settle. */
+  --bounce: linear(0, 0.0442 2.5%, 0.1552 5.0%, 0.3041 7.5%, 0.4675 10.0%, 0.6274 12.5%, 0.7715 15.0%, 0.8924 17.5%, 0.9868 20.0%, 1.0546 22.5%, 1.0980 25.0%, 1.1205 27.5%, 1.1263 30.0%, 1.1198 32.5%, 1.1053 35.0%, 1.0862 37.5%, 1.0655 40.0%, 1.0455 42.5%, 1.0275 45.0%, 1.0125 47.5%, 1.0008 50.0%, 0.9925 52.5%, 0.9873 55.0%, 0.9846 57.5%, 0.9841 60.0%, 0.9850 62.5%, 0.9869 65.0%, 0.9893 67.5%, 0.9919 70.0%, 0.9945 72.5%, 0.9967 75.0%, 0.9986 77.5%, 1.0000 80.0%, 1.0010 82.5%, 1.0016 85.0%, 1.0020 87.5%, 1.0020 90.0%, 1.0019 92.5%, 1.0016 95.0%, 1.0013 97.5%, 1 100%);
+  --bounce-t: 0.844s;
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; overflow: hidden; }
@@ -704,14 +708,42 @@ html.pared:has(.mobile), html.pared:has(.mobile) body { height: auto; overflow: 
    Timo's shadow from the app: y 12, blur 18, 32% black, at a 20 pt tall tab, scaled to this one's 28.
    It grows in from 60% on the app's spring for it (response 0.42, damping 0.55: a little overshoot, unlike
    the site's --expand), sampled below; it leaves the app's way too, easing out over 0.28 s. */
-.hint-tag { --tab-spring: linear(0, 0.0442 2.5%, 0.1552 5.0%, 0.3041 7.5%, 0.4675 10.0%, 0.6274 12.5%, 0.7715 15.0%, 0.8924 17.5%, 0.9868 20.0%, 1.0546 22.5%, 1.0980 25.0%, 1.1205 27.5%, 1.1263 30.0%, 1.1198 32.5%, 1.1053 35.0%, 1.0862 37.5%, 1.0655 40.0%, 1.0455 42.5%, 1.0275 45.0%, 1.0125 47.5%, 1.0008 50.0%, 0.9925 52.5%, 0.9873 55.0%, 0.9846 57.5%, 0.9841 60.0%, 0.9850 62.5%, 0.9869 65.0%, 0.9893 67.5%, 0.9919 70.0%, 0.9945 72.5%, 0.9967 75.0%, 0.9986 77.5%, 1.0000 80.0%, 1.0010 82.5%, 1.0016 85.0%, 1.0020 87.5%, 1.0020 90.0%, 1.0019 92.5%, 1.0016 95.0%, 1.0013 97.5%, 1 100%);
-  position: fixed; z-index: 25; left: 0; top: 0; height: 28px; padding: 0; border: 0; background: none; cursor: default;
+.hint-tag { position: fixed; z-index: 25; left: 0; top: 0; height: 28px; padding: 0; border: 0; background: none; cursor: default;
   filter: drop-shadow(0 16.8px 12.6px rgb(0 0 0 / 0.32));
   opacity: 0; transform: scale(.6); pointer-events: none;
   transition: opacity .28s ease-out, transform .28s ease-out; }
-.hint-tag.shown { opacity: 1; transform: none; pointer-events: auto; transition: opacity .2s ease-out, transform .844s var(--tab-spring); }
+.hint-tag.shown { opacity: 1; transform: none; pointer-events: auto; transition: opacity .2s ease-out, transform var(--bounce-t) var(--bounce); }
 .hint-tag.away { opacity: 0 !important; pointer-events: none; }
 .hint-tag svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 .hint-tag path { fill: var(--color-accent); stroke: #fff; stroke-linejoin: round; paint-order: stroke; }
 .hint-tag-label { position: relative; display: block; padding: 0 0 0 12px; font-size: 13px; line-height: 28px; font-weight: 600; color: #fff; white-space: nowrap; text-align: left; }
 .mobile .hint-tag { display: none; }
+
+/* "love" in the footer becomes a heart while hovered, or on a tap where there is no hover (Timo, 2026-11-01).
+   One object with two faces in one grid cell: love.js sets the width to the face showing, so the words after
+   it slide rather than jump. The heart pops in on the bounce and leaves on a quick ease-out (asymmetric, as
+   the app's pointer); the word goes out quickly and comes back on --expand. Only scale and opacity animate,
+   besides that one width: no blur, which is what makes a frame too costly to draw in time. */
+.love { display: inline-grid; vertical-align: bottom; padding: 0; border: 0; background: none; color: inherit; font: inherit; cursor: default;
+  transition: width var(--t) var(--expand); -webkit-tap-highlight-color: transparent; }
+/* The one column is the button's width (set by love.js), not the wider word's; otherwise the heart centred
+   in the word's width and sat 4 px right of its own space. Faces wider than it spill evenly both ways. */
+.love { grid-template-columns: minmax(0, 1fr); }
+.love > * { grid-area: 1 / 1; justify-self: center; white-space: nowrap; }
+.love-word { transition: opacity .25s ease-out, transform var(--t) var(--expand); }
+/* An opaque colour: the footer's grey is half transparent, and Chrome draws a colour emoji through it.
+   At the start, not centred: Chrome gives the emoji a 16 px box for a 13 px glyph, all the spare on the
+   right, which left 4.9 px before the heart and 7.9 after (measured from rendered pixels). love.js makes
+   the button the glyph's own width instead. */
+.love-heart { justify-self: start; color: #000; opacity: 0; transform: scale(.3); transition: opacity .15s ease-out, transform .2s ease-out; }
+.love.on .love-word { opacity: 0; transform: scale(.6); transition: opacity .12s ease-out, transform .2s ease-out; }
+.love.on .love-heart { opacity: 1; transform: none; transition: opacity .12s ease-out, transform var(--bounce-t) var(--bounce); }
+.love:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; border-radius: 4px; }
+@media (prefers-reduced-motion: reduce) { .love-word, .love-heart, .love.on .love-word, .love.on .love-heart { transform: none; } }
+
+/* Confetti as the heart arrives (Timo's sketches, 2026-11-01): a few dots thrown outward, then gone.
+   The most temporary thing on the page, so it floats over everything and takes no space; love.js throws
+   it. Transform and opacity only. */
+.love { position: relative; }
+.love-burst { position: absolute; left: 50%; top: 50%; width: 0; height: 0; pointer-events: none; }
+.love-burst i { position: absolute; left: 0; top: 0; background: var(--color-sys-red); border-radius: 99px; }
