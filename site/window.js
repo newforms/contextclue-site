@@ -940,16 +940,23 @@
     path.setAttribute("stroke-width", ((TAB_H * 0.16 + 2) / K).toFixed(3));   // the app's outline: 1 pt + 8% of the height, outside
     hint.style.width = `${W * K}px`;
   }
-  // Left of the Local time section, pointing at its "24-hour clock" checkbox (Timo, 2026-11-01; his first
-  // sketch had it on Location's "Update automatically").
+  // Desktop: left of the Local time section, pointing at its "24-hour clock" checkbox (Timo, 2026-11-01;
+  // his first sketch had it on Location's "Update automatically"). Phones: at the Layout pop-up button, where
+  // it replaced a pill under the window (Timo, 2026-11-01), so there is one signifier on every size.
   // It circles as the app's does: one unhurried lap every 3.4 s, flatter than tall (7% of its height
   // across, 12% up and down), from one clock so the two axes keep their quarter-turn apart.
   function positionTab() {
-    const box = $('.sidebar .checkbox[data-bind="h24"]'), r = box.getBoundingClientRect();
-    const section = box.closest(".section").getBoundingClientRect();
-    hint.classList.toggle("away", sidebarHides(r));
+    let tipX, cy;
+    if (isMobile()) {
+      const r = $('.appearance-row select[data-bind="layout"]').closest(".popup").getBoundingClientRect();
+      hint.classList.remove("away");
+      tipX = r.left - 6; cy = r.top + r.height / 2;
+    } else {
+      const box = $('.sidebar .checkbox[data-bind="h24"]'), r = box.getBoundingClientRect();
+      hint.classList.toggle("away", sidebarHides(r));
+      tipX = box.closest(".section").getBoundingClientRect().left - 6; cy = r.top + r.height / 2;
+    }
     const turn = performance.now() / 1000 * (2 * Math.PI / 3.4);
-    const tipX = section.left - 6, cy = r.top + r.height / 2;
     hint.style.translate = `${tipX - hint.offsetWidth + Math.cos(turn) * TAB_H * 0.07}px ${cy - TAB_H / 2 + Math.sin(turn) * TAB_H * 0.12}px`;
   }
 
@@ -968,7 +975,7 @@
   $("#window").addEventListener("change", dismissHint);
   addEventListener("keydown", e => { if (e.key === "Escape" && hint.classList.contains("shown")) dismissHint(); });
   setTimeout(() => {
-    if (hintGone || isMobile()) return;
+    if (hintGone || (isMobile() && HINT_STYLE === "popover")) return;   // the popover is desktop only
     if (HINT_STYLE === "tag") shapeTab();
     followHint = () => { if (hint.classList.contains("shown")) positionHint(); }; placeHint();
     void hint.offsetWidth;   // placed before it appears, so it doesn't fly in from the corner
