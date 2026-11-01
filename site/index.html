@@ -374,6 +374,9 @@
         </main>
       </div>
     </section>
+    <!-- Phones: the same nudge as the desktop popover, as a pill under the window (Timo, 2026-11-01) -->
+    <!-- The arrow is drawn here, since SF Symbols are licensed for apps only -->
+    <p class="hint-pill"><svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M6 10.5V1.8M2.2 5.4 6 1.6l3.8 3.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Try me</p>
   </div>
   <!-- PLACEHOLDER (2026-10-14): something to scroll to below the window, from the existing copy.
        Not designed; the sections that belong here are still to be decided. -->
@@ -427,6 +430,27 @@
   <button type="button" class="focus-close" id="focusClose" aria-label="Back to the overview">
     <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path id="focusCloseGlyph" d="" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
     <span class="focus-close-label">Close</span>
+  </button>
+  <!-- Desktop: a popover pointing at one of the window's toggles on first load, so the window reads as a
+       working app rather than a screenshot (Timo, 2026-11-01). Placeholder copy, from his mockup. It sits
+       above the page, not in the window, so the window's edge never clips it; window.js keeps it on its
+       toggle as the window moves. -->
+  <div class="hint" id="hint" role="note">
+    <div class="hint-body">
+      <p class="hint-title">Fully functional</p>
+      <p class="hint-text">Play with the knobs and toggles.</p>
+      <button type="button" class="hint-close" id="hintClose" aria-label="Dismiss">
+        <svg viewBox="0 0 12 12" width="10" height="10" aria-hidden="true"><path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <i class="hint-arrow" aria-hidden="true"></i>
+  </div>
+  <!-- The same nudge as the app's own pointer (Cue/Unlock.swift WatermarkPointer, Timo's Tab2.svg), with a
+       label (Timo, 2026-11-01). The default; ?hintstyle=popover shows the popover above instead. window.js
+       draws the shape to fit the label and moves it as the app does. -->
+  <button type="button" class="hint-tag" id="hintTag" aria-label="Dismiss">
+    <svg aria-hidden="true"><path/></svg>
+    <span class="hint-tag-label">Try me!</span>
   </button>
 </div>
 

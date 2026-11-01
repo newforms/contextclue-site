@@ -670,7 +670,9 @@
     const f = focusAt(), r = restAt(), m = focused ? 1 : pull * MAGNET;
     return { x: r.x + (f.x - r.x) * m, y: r.y + (f.y - r.y) * m, s: r.s + (f.s - r.s) * m };
   }
-  const applyWindow = () => { $("#window").style.transform = `translate(${cur.x}px, ${cur.y}px) scale(${cur.s})`; };
+  // followHint: set by the hint below; moved in the same step as the window, or it trails a frame behind
+  let followHint = () => {};
+  const applyWindow = () => { $("#window").style.transform = `translate(${cur.x}px, ${cur.y}px) scale(${cur.s})`; followHint(); };
   function placeWindow(snap) {
     if (!geo) return;
     const t = windowTarget();
@@ -890,4 +892,86 @@
   new ResizeObserver(fit).observe($("#preview"));
   updateBlur();
   setInterval(() => { if (new Date().getSeconds() === 0) render(); }, 1000);
+
+  // ---------- "It's a real app" hint (Timo, 2026-11-01) ----------
+  // On desktop, shortly after load, something points into the window: it looks like a screenshot until
+  // you touch it. Two looks, to compare: the app's own pointer tab with a label (the default), and a
+  // macOS-style popover (?hintstyle=popover). Either follows what it points at: in the same step as the
+  // window's spring (applyWindow), and every frame for scrolling. Clicking it closes it, and so does
+  // Escape or using any control in the window: by then it has done its job. Not remembered between visits.
+  // ?hint=0 turns it off.
+  const HINT_STYLE = q.get("hintstyle") === "popover" ? "popover" : "tag";
+  const HINT_DELAY = 1200, EDGE = 12;
+  const hint = HINT_STYLE === "popover" ? $("#hint") : $("#hintTag");
+  let hintFrame = 0, hintGone = q.get("hint") === "0";
+  const sidebarHides = r => { const sb = $(".sidebar").getBoundingClientRect(); return r.top < sb.top || r.bottom > sb.bottom || r.width === 0; };
+
+  // The popover: above the Location switch, its arrow on the switch's centre.
+  function positionPopover() {
+    const a = $('.sidebar .switch[data-bind="location"]'), r = a.getBoundingClientRect();
+    hint.classList.toggle("away", sidebarHides(r));
+    const w = hint.offsetWidth, h = hint.offsetHeight, ax = r.left + r.width / 2;
+    const left = Math.max(EDGE, Math.min(innerWidth - w - EDGE, ax - w / 2));
+    hint.style.translate = `${left}px ${r.top - 2 - 13 - h}px`;   // 2 off the switch; 13: how far the arrow's tip reaches
+    hint.style.setProperty("--arrow-x", `${ax - left}px`);
+  }
+
+  // The tab: Timo's Tab2.svg (54 × 20), as the app draws it (Cue/Unlock.swift Tab), but longer to hold
+  // its label. Everything from the taper on moves right by `extra`; the rounded end and the point keep
+  // the SVG's own curves, which is what a plain horizontal stretch would have bent.
+  const TAB_H = 28, K = TAB_H / 20;
+  function tabPath(extra) {
+    const X = x => (x > 30 ? x + extra : x).toFixed(3);
+    const pts = [["M", 2.99987, 0.00144], ["L", 36.5973, 0], ["C", 37.0805, 0.0000105, 37.5566, 0.116716, 37.985, 0.340218],
+      ["L", 51.4015, 7.3394], ["C", 53.5514, 8.46097, 53.5514, 11.5375, 51.4015, 12.659], ["L", 37.9849, 19.6583],
+      ["C", 37.5565, 19.8817, 37.0806, 19.9984, 36.5974, 19.9985], ["L", 3.00013, 19.9999], ["C", 1.34322, 19.9999, 0, 18.6568, 0, 16.9999],
+      ["L", 0, 3.00144], ["C", 0, 1.34463, 1.34307, 0.00150617, 2.99987, 0.00144]];
+    return pts.map(([c, ...n]) => c + n.map((v, i) => i % 2 ? v.toFixed(3) : X(v)).join(" ")).join(" ") + " Z";
+  }
+  function shapeTab() {
+    const label = hint.querySelector(".hint-tag-label");
+    // the body runs to where the taper starts (36.6 of 54); it holds the label (scrollWidth includes its
+    // 12 of left padding) and 12 more on the right
+    const extra = Math.max(0, (label.scrollWidth + 12) / K - 36.6);
+    const W = 54 + extra, svg = hint.querySelector("svg");
+    svg.setAttribute("viewBox", `0 0 ${W} 20`);
+    const path = svg.querySelector("path");
+    path.setAttribute("d", tabPath(extra));
+    path.setAttribute("stroke-width", ((TAB_H * 0.16 + 2) / K).toFixed(3));   // the app's outline: 1 pt + 8% of the height, outside
+    hint.style.width = `${W * K}px`;
+  }
+  // Left of the Local time section, pointing at its "24-hour clock" checkbox (Timo, 2026-11-01; his first
+  // sketch had it on Location's "Update automatically").
+  // It circles as the app's does: one unhurried lap every 3.4 s, flatter than tall (7% of its height
+  // across, 12% up and down), from one clock so the two axes keep their quarter-turn apart.
+  function positionTab() {
+    const box = $('.sidebar .checkbox[data-bind="h24"]'), r = box.getBoundingClientRect();
+    const section = box.closest(".section").getBoundingClientRect();
+    hint.classList.toggle("away", sidebarHides(r));
+    const turn = performance.now() / 1000 * (2 * Math.PI / 3.4);
+    const tipX = section.left - 6, cy = r.top + r.height / 2;
+    hint.style.translate = `${tipX - hint.offsetWidth + Math.cos(turn) * TAB_H * 0.07}px ${cy - TAB_H / 2 + Math.sin(turn) * TAB_H * 0.12}px`;
+  }
+
+  const positionHint = HINT_STYLE === "popover" ? positionPopover : positionTab;
+  function placeHint() {
+    if (hintGone) { hintFrame = 0; return; }
+    positionHint();
+    hintFrame = requestAnimationFrame(placeHint);
+  }
+  function dismissHint() {
+    if (hintGone) return;
+    hintGone = true; hint.classList.remove("shown");   // the frame loop stops on its next turn
+  }
+  $("#hintClose").addEventListener("click", dismissHint);
+  $("#hintTag").addEventListener("click", dismissHint);
+  $("#window").addEventListener("change", dismissHint);
+  addEventListener("keydown", e => { if (e.key === "Escape" && hint.classList.contains("shown")) dismissHint(); });
+  setTimeout(() => {
+    if (hintGone || isMobile()) return;
+    if (HINT_STYLE === "tag") shapeTab();
+    followHint = () => { if (hint.classList.contains("shown")) positionHint(); }; placeHint();
+    void hint.offsetWidth;   // placed before it appears, so it doesn't fly in from the corner
+    hint.classList.add("shown");
+  }, HINT_DELAY);
 })();

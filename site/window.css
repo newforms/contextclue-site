@@ -666,3 +666,52 @@ html.pared:has(.mobile), html.pared:has(.mobile) body { height: auto; overflow: 
 /* Badge: Apple's black lockup at its own 40 pt */
 .pared .mobile .store-after { padding: 0 28px 40px; }
 .pared .mobile .store-after .store-badge img { height: 40px; }
+
+/* ---------- "It's a real app" hint (Timo, 2026-11-01) ----------
+   Desktop: a macOS-style popover pointing at one of the window's toggles, after his mockup; window.js
+   places it. Its outline and shadow come from drop-shadow on the whole thing, so they run around the arrow
+   too, as on macOS. That rules out a frosted backdrop (a filtered parent leaves backdrop-filter nothing to
+   blur), so it is opaque, as in his first mockup. Tried first: a frosted body with box-shadow, whose
+   hairline cut straight across the arrow's base and left the arrow nearly invisible on the sidebar.
+   Phones: a quiet pill under the window instead. */
+.hint { --hint-bg: var(--window);
+  position: fixed; z-index: 25; left: 0; top: 0; width: max-content; max-width: 320px; pointer-events: none;
+  filter: drop-shadow(0 0 0.5px rgb(0 0 0 / 0.4)) drop-shadow(0 10px 24px rgb(0 0 0 / 0.16));
+  opacity: 0; transform: translateY(6px) scale(.96); transform-origin: var(--arrow-x, 50%) 100%;
+  transition: opacity .2s ease-in-out, transform var(--t) var(--expand); }
+.hint.shown { opacity: 1; transform: none; pointer-events: auto; }
+.hint.away { opacity: 0 !important; pointer-events: none; }   /* its toggle is scrolled out of sight */
+.hint-body { position: relative; padding: 16px 44px 16px 20px; border-radius: 16px; color: var(--label); background: var(--hint-bg); }
+.hint-title { margin: 0 0 4px; font-size: 13px; line-height: 16px; font-weight: 600; }
+.hint-text { margin: 0; font-size: 13px; line-height: 16px; color: var(--label-2); }
+/* The arrow after Timo's reference (2026-11-01): wide and shallow, straight 45° sides, a round tip (radius
+   3.5) and wide curved fillets (radius 12) where it leaves the edge; radius 6 still met the edge almost at
+   a corner. Drawn in a 40 × 14 box; the tip is 13 down. */
+.hint-arrow { position: absolute; top: 100%; left: var(--arrow-x, 50%); width: 40px; height: 14px; margin: -0.5px 0 0 -20px; background: var(--hint-bg);
+  clip-path: path("M0 0 L0.58 0 Q5.55 0 9.07 3.52 L17.53 11.98 Q20 14.45 22.47 11.98 L30.93 3.52 Q34.45 0 39.42 0 L40 0 Z"); }
+.hint-close { position: absolute; top: 8px; right: 8px; width: 20px; height: 20px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%;
+  background: transparent; color: var(--label-2); cursor: default; transition: background-color .15s; }
+.hint-close:hover { background: var(--fill-quinary); color: var(--label); }
+[data-theme=dark] .hint { --hint-bg: color-mix(in srgb, var(--window) 96%, #fff 4%);
+  filter: drop-shadow(0 0 0.5px rgb(0 0 0 / 0.9)) drop-shadow(0 12px 28px rgb(0 0 0 / 0.45)); }
+.mobile .hint { display: none; }
+.hint-pill { display: none; }
+.mobile .hint-pill { display: flex; align-items: center; gap: 4px; width: max-content; margin: 12px auto 0; padding: 6px 12px; border-radius: 999px;
+  font-size: 13px; line-height: 16px; color: var(--label-2); background: var(--fill-quinary); }
+
+/* The tag: the app's pointer (Cue/Unlock.swift WatermarkPointer), with a label. Accent fill, a white outline
+   drawn outside the shape (paint-order puts the stroke under the fill, so only its outer half shows), and
+   Timo's shadow from the app: y 12, blur 18, 32% black, at a 20 pt tall tab, scaled to this one's 28.
+   It grows in from 60% on the app's spring for it (response 0.42, damping 0.55: a little overshoot, unlike
+   the site's --expand), sampled below; it leaves the app's way too, easing out over 0.28 s. */
+.hint-tag { --tab-spring: linear(0, 0.0442 2.5%, 0.1552 5.0%, 0.3041 7.5%, 0.4675 10.0%, 0.6274 12.5%, 0.7715 15.0%, 0.8924 17.5%, 0.9868 20.0%, 1.0546 22.5%, 1.0980 25.0%, 1.1205 27.5%, 1.1263 30.0%, 1.1198 32.5%, 1.1053 35.0%, 1.0862 37.5%, 1.0655 40.0%, 1.0455 42.5%, 1.0275 45.0%, 1.0125 47.5%, 1.0008 50.0%, 0.9925 52.5%, 0.9873 55.0%, 0.9846 57.5%, 0.9841 60.0%, 0.9850 62.5%, 0.9869 65.0%, 0.9893 67.5%, 0.9919 70.0%, 0.9945 72.5%, 0.9967 75.0%, 0.9986 77.5%, 1.0000 80.0%, 1.0010 82.5%, 1.0016 85.0%, 1.0020 87.5%, 1.0020 90.0%, 1.0019 92.5%, 1.0016 95.0%, 1.0013 97.5%, 1 100%);
+  position: fixed; z-index: 25; left: 0; top: 0; height: 28px; padding: 0; border: 0; background: none; cursor: default;
+  filter: drop-shadow(0 16.8px 12.6px rgb(0 0 0 / 0.32));
+  opacity: 0; transform: scale(.6); pointer-events: none;
+  transition: opacity .28s ease-out, transform .28s ease-out; }
+.hint-tag.shown { opacity: 1; transform: none; pointer-events: auto; transition: opacity .2s ease-out, transform .844s var(--tab-spring); }
+.hint-tag.away { opacity: 0 !important; pointer-events: none; }
+.hint-tag svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.hint-tag path { fill: var(--color-accent); stroke: #fff; stroke-linejoin: round; paint-order: stroke; }
+.hint-tag-label { position: relative; display: block; padding: 0 0 0 12px; font-size: 13px; line-height: 28px; font-weight: 600; color: #fff; white-space: nowrap; text-align: left; }
+.mobile .hint-tag { display: none; }
