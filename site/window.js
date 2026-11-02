@@ -893,33 +893,49 @@
   updateBlur();
   setInterval(() => { if (new Date().getSeconds() === 0) render(); }, 1000);
 
-  // ---------- "It's a real app" hint (Timo, 2026-11-01) ----------
-  // On desktop, shortly after load, something points into the window: it looks like a screenshot until
-  // you touch it. Two looks, to compare: the app's own pointer tab with a label (the default), and a
-  // macOS-style popover (?hintstyle=popover). Either follows what it points at: in the same step as the
-  // window's spring (applyWindow), and every frame for scrolling. Clicking it closes it, and so does
-  // Escape or using any control in the window: by then it has done its job. Not remembered between visits.
-  // ?hint=0 turns it off.
+  // ---------- "It's a real app" hints (Timo, 2026-11-01) ----------
+  // Shortly after load, something points into the window: it looks like a screenshot until you touch it.
+  // Two looks, to compare: the app's own pointer tab with a label (the default), and a macOS-style popover
+  // (?hintstyle=popover, desktop only). Then, with the tab, a second one: once someone has changed a
+  // control, the first has done its job and goes, and a tab points at the camera instead, unless that change
+  // was the camera. Each follows what it points at: in the same step as the window's spring (applyWindow),
+  // and every frame for scrolling. Clicking one closes it, as does Escape. Not remembered between visits.
+  // ?hint=0 turns them off.
   const HINT_STYLE = q.get("hintstyle") === "popover" ? "popover" : "tag";
-  const HINT_DELAY = 1200, EDGE = 12;
-  const hint = HINT_STYLE === "popover" ? $("#hint") : $("#hintTag");
-  let hintFrame = 0, hintGone = q.get("hint") === "0";
+  const HINT_DELAY = 1200, CAMERA_DELAY = 600, EDGE = 12;
+  const hintsOff = q.get("hint") === "0";
   const sidebarHides = r => { const sb = $(".sidebar").getBoundingClientRect(); return r.top < sb.top || r.bottom > sb.bottom || r.width === 0; };
 
+  // A hint: an element, how to place it, and whether it has had its turn
+  const liveHints = new Set();
+  followHint = () => { for (const h of liveHints) h.place(); };
+  function makeHint(el, place) {
+    const h = { el, place: () => place(el), gone: false, frame: 0 };
+    const loop = () => { if (h.gone) { h.frame = 0; return; } h.place(); h.frame = requestAnimationFrame(loop); };
+    h.show = () => {
+      if (h.gone) return;
+      h.place(); void el.offsetWidth;   // placed before it appears, so it doesn't fly in from the corner
+      el.classList.add("shown"); liveHints.add(h); loop();
+    };
+    h.dismiss = () => { if (h.gone) return; h.gone = true; el.classList.remove("shown"); liveHints.delete(h); };
+    return h;
+  }
+
   // The popover: above the Location switch, its arrow on the switch's centre.
-  function positionPopover() {
+  function placePopover(el) {
     const a = $('.sidebar .switch[data-bind="location"]'), r = a.getBoundingClientRect();
-    hint.classList.toggle("away", sidebarHides(r));
-    const w = hint.offsetWidth, h = hint.offsetHeight, ax = r.left + r.width / 2;
+    el.classList.toggle("away", sidebarHides(r));
+    const w = el.offsetWidth, h = el.offsetHeight, ax = r.left + r.width / 2;
     const left = Math.max(EDGE, Math.min(innerWidth - w - EDGE, ax - w / 2));
-    hint.style.translate = `${left}px ${r.top - 2 - 13 - h}px`;   // 2 off the switch; 13: how far the arrow's tip reaches
-    hint.style.setProperty("--arrow-x", `${ax - left}px`);
+    el.style.translate = `${left}px ${r.top - 2 - 13 - h}px`;   // 2 off the switch; 13: how far the arrow's tip reaches
+    el.style.setProperty("--arrow-x", `${ax - left}px`);
   }
 
   // The tab: Timo's Tab2.svg (54 × 20), as the app draws it (Cue/Unlock.swift Tab), but longer to hold
   // its label. Everything from the taper on moves right by `extra`; the rounded end and the point keep
-  // the SVG's own curves, which is what a plain horizontal stretch would have bent.
-  const TAB_H = 28, K = TAB_H / 20;
+  // the SVG's own curves, which is what a plain horizontal stretch would have bent. Pointing left, it is
+  // the same shape mirrored, as in the app, and the label moves to the other end.
+  const TAB_H = 28;   // the tab's height; the camera tab is 24 on phones (placeCamera)
   function tabPath(extra) {
     const X = x => (x > 30 ? x + extra : x).toFixed(3);
     const pts = [["M", 2.99987, 0.00144], ["L", 36.5973, 0], ["C", 37.0805, 0.0000105, 37.5566, 0.116716, 37.985, 0.340218],
@@ -928,57 +944,94 @@
       ["L", 0, 3.00144], ["C", 0, 1.34463, 1.34307, 0.00150617, 2.99987, 0.00144]];
     return pts.map(([c, ...n]) => c + n.map((v, i) => i % 2 ? v.toFixed(3) : X(v)).join(" ")).join(" ") + " Z";
   }
-  function shapeTab() {
-    const label = hint.querySelector(".hint-tag-label");
-    // the body runs to where the taper starts (36.6 of 54); it holds the label (scrollWidth includes its
-    // 12 of left padding) and 12 more on the right
-    const extra = Math.max(0, (label.scrollWidth + 12) / K - 36.6);
-    const W = 54 + extra, svg = hint.querySelector("svg");
+  // Everything scales with the height: the shape (the SVG is 20 tall), the label (13 on 28) and its
+  // padding (12 on 28).
+  function shapeTab(el, pointsLeft, h) {
+    const key = `${pointsLeft} ${h}`;
+    if (el.dataset.shaped === key) return;
+    el.dataset.shaped = key;
+    const K = h / 20, TIP = (54 - 36.6) * K, pad = 12 * h / TAB_H;   // TIP: how much of the tab the point takes
+    el.classList.toggle("points-left", pointsLeft);
+    el.style.height = `${h}px`;
+    const label = el.querySelector(".hint-tag-label");
+    Object.assign(label.style, { fontSize: `${13 * h / TAB_H}px`, lineHeight: `${h}px`, paddingLeft: `${pointsLeft ? TIP + pad : pad}px` });
+    // the body runs to where the taper starts (36.6 of 54); it holds the label with the padding either side
+    const textW = label.scrollWidth - parseFloat(label.style.paddingLeft);
+    const extra = Math.max(0, (pad + textW + pad) / K - 36.6);
+    const W = 54 + extra, svg = el.querySelector("svg");
     svg.setAttribute("viewBox", `0 0 ${W} 20`);
     const path = svg.querySelector("path");
     path.setAttribute("d", tabPath(extra));
-    path.setAttribute("stroke-width", ((TAB_H * 0.16 + 2) / K).toFixed(3));   // the app's outline: 1 pt + 8% of the height, outside
-    hint.style.width = `${W * K}px`;
+    path.setAttribute("stroke-width", ((h * 0.16 + 2) / K).toFixed(3));   // the app's outline: 1 pt + 8% of the height, outside
+    el.style.width = `${W * K}px`;
   }
-  // Desktop: left of the Local time section, pointing at its "24-hour clock" checkbox (Timo, 2026-11-01;
-  // his first sketch had it on Location's "Update automatically"). Phones: at the Layout pop-up button, where
-  // it replaced a pill under the window (Timo, 2026-11-01), so there is one signifier on every size.
   // It circles as the app's does: one unhurried lap every 3.4 s, flatter than tall (7% of its height
   // across, 12% up and down), from one clock so the two axes keep their quarter-turn apart.
-  function positionTab() {
-    let tipX, cy;
+  function placeTab(el, tipX, cy, pointsLeft, h = TAB_H) {
+    shapeTab(el, pointsLeft, h);
+    const turn = performance.now() / 1000 * (2 * Math.PI / 3.4);
+    const left = pointsLeft ? tipX : tipX - el.offsetWidth;
+    el.style.translate = `${left + Math.cos(turn) * h * 0.07}px ${cy - h / 2 + Math.sin(turn) * h * 0.12}px`;
+    return { left, right: left + el.offsetWidth, reach: h * 0.07 };   // reach: how far the orbit carries it either way
+  }
+  // "Try me!". Desktop: left of the Local time section, pointing at its "24-hour clock" checkbox (Timo,
+  // 2026-11-01; his first sketch had it on Location's "Update automatically"). Phones: at the Layout
+  // pop-up button, where it replaced a pill under the window, so there is one signifier on every size.
+  function placeTryMe(el) {
     if (isMobile()) {
       const r = $('.appearance-row select[data-bind="layout"]').closest(".popup").getBoundingClientRect();
-      hint.classList.remove("away");
-      tipX = r.left - 6; cy = r.top + r.height / 2;
-    } else {
-      const box = $('.sidebar .checkbox[data-bind="h24"]'), r = box.getBoundingClientRect();
-      hint.classList.toggle("away", sidebarHides(r));
-      tipX = box.closest(".section").getBoundingClientRect().left - 6; cy = r.top + r.height / 2;
+      el.classList.remove("away");
+      return placeTab(el, r.left - 6, r.top + r.height / 2, false);
     }
-    const turn = performance.now() / 1000 * (2 * Math.PI / 3.4);
-    hint.style.translate = `${tipX - hint.offsetWidth + Math.cos(turn) * TAB_H * 0.07}px ${cy - TAB_H / 2 + Math.sin(turn) * TAB_H * 0.12}px`;
+    const box = $('.sidebar .checkbox[data-bind="h24"]'), r = box.getBoundingClientRect();
+    el.classList.toggle("away", sidebarHides(r));
+    placeTab(el, box.closest(".section").getBoundingClientRect().left - 6, r.top + r.height / 2, false);
+  }
+  // The second "Try me!", at the camera pop-up button. Desktop: from its left, where the toolbar is empty.
+  // Phones: the button sits at the card's left edge, so from its right, pointing back at it (Timo,
+  // 2026-11-01), and a size smaller (24), because Pause shares the row: 87 px free at 390 wide, against
+  // 96 for the full-size tab. It never covers Pause; where even the small one doesn't fit (narrower
+  // phones), it stays out of sight.
+  const cameraPopup = () => $('.toolbar select[data-bind="source"]').closest(".popup");
+  function placeCamera(el) {
+    const r = cameraPopup().getBoundingClientRect(), cy = r.top + r.height / 2;
+    // Out of sight while its button is: at rest beside the title, the window runs off the right edge and
+    // takes the camera button with it. It shows once the window comes forward (found 2026-11-01: it pointed
+    // past the screen's edge at 1485 of 1440).
+    let away = r.right > innerWidth || r.left < 0 || r.bottom < 0 || r.top > innerHeight;
+    if (isMobile()) {
+      const t = placeTab(el, r.right + 4, cy, true, 24);
+      const pause = $("#pauseButton").getBoundingClientRect();
+      if (pause.width && t.right + t.reach > pause.left - 4) away = true;
+    } else placeTab(el, r.left - 6, cy, false);
+    el.classList.toggle("away", away);
   }
 
-  const positionHint = HINT_STYLE === "popover" ? positionPopover : positionTab;
-  function placeHint() {
-    if (hintGone) { hintFrame = 0; return; }
-    positionHint();
-    hintFrame = requestAnimationFrame(placeHint);
-  }
-  function dismissHint() {
-    if (hintGone) return;
-    hintGone = true; hint.classList.remove("shown");   // the frame loop stops on its next turn
-  }
-  $("#hintClose").addEventListener("click", dismissHint);
-  $("#hintTag").addEventListener("click", dismissHint);
-  $("#window").addEventListener("change", dismissHint);
-  addEventListener("keydown", e => { if (e.key === "Escape" && hint.classList.contains("shown")) dismissHint(); });
+  const tryMe = HINT_STYLE === "popover" ? makeHint($("#hint"), placePopover) : makeHint($("#hintTag"), placeTryMe);
+  const camera = makeHint($("#hintCam"), placeCamera);
+  if (hintsOff || HINT_STYLE === "popover") camera.gone = true;
+  if (hintsOff) tryMe.gone = true;
+
+  $("#hintClose").addEventListener("click", () => tryMe.dismiss());
+  $("#hintTag").addEventListener("click", () => tryMe.dismiss());
+  $("#hintCam").addEventListener("click", () => camera.dismiss());
+  // Pressing the camera pop-up dismisses its tab at once, before a menu opens or anything is chosen (Timo,
+  // 2026-11-01). A press anywhere else leaves it.
+  $('.toolbar select[data-bind="source"]').addEventListener("pointerdown", () => camera.dismiss());
+  // The first change to any control is playing: "Try me!" has done its job, and the camera is next, unless
+  // that change was the camera, or the camera is already on by the time the tab would appear.
+  let played = false;
+  $("#window").addEventListener("change", e => {
+    const wasCamera = e.target.matches('select[data-bind="source"]');
+    if (wasCamera) camera.dismiss();   // they found it
+    if (played) return;
+    played = true; tryMe.dismiss();
+    if (!wasCamera) setTimeout(() => { if (state.source === "demo") camera.show(); }, CAMERA_DELAY);
+  });
+  // Escape: no more hints this visit
+  addEventListener("keydown", e => { if (e.key === "Escape") { tryMe.dismiss(); camera.dismiss(); } });
   setTimeout(() => {
-    if (hintGone || (isMobile() && HINT_STYLE === "popover")) return;   // the popover is desktop only
-    if (HINT_STYLE === "tag") shapeTab();
-    followHint = () => { if (hint.classList.contains("shown")) positionHint(); }; placeHint();
-    void hint.offsetWidth;   // placed before it appears, so it doesn't fly in from the corner
-    hint.classList.add("shown");
+    if (isMobile() && HINT_STYLE === "popover") return;   // the popover is desktop only
+    tryMe.show();
   }, HINT_DELAY);
 })();
