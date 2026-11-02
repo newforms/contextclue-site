@@ -1015,19 +1015,23 @@
   $("#hintClose").addEventListener("click", () => tryMe.dismiss());
   $("#hintTag").addEventListener("click", () => tryMe.dismiss());
   $("#hintCam").addEventListener("click", () => camera.dismiss());
-  // Pressing the camera pop-up dismisses its tab at once, before a menu opens or anything is chosen (Timo,
-  // 2026-11-01). A press anywhere else leaves it.
-  $('.toolbar select[data-bind="source"]').addEventListener("pointerdown", () => camera.dismiss());
-  // The first change to any control is playing: "Try me!" has done its job, and the camera is next, unless
-  // that change was the camera, or the camera is already on by the time the tab would appear.
+  // The first press on any control is playing (Timo, 2026-11-01; at first it was the first change, which
+  // left the tab up while a phone's picker was open, or for good if the same value was picked again):
+  // "Try me!" has done its job, and the camera is next, unless the control was the camera, or the camera is
+  // already on by the time the tab would appear. A press on empty space or on the video doesn't count.
+  // A change counts too, for whoever uses the keyboard. Pressing the camera pop-up dismisses its own tab at
+  // once, before a menu opens (Timo, 2026-11-01); a press anywhere else leaves that one up.
+  const CONTROL = "input, select, button, label, textarea";
   let played = false;
-  $("#window").addEventListener("change", e => {
-    const wasCamera = e.target.matches('select[data-bind="source"]');
-    if (wasCamera) camera.dismiss();   // they found it
+  function play(control) {
+    const isCamera = control.matches('select[data-bind="source"]');
+    if (isCamera) camera.dismiss();   // they found it
     if (played) return;
     played = true; tryMe.dismiss();
-    if (!wasCamera) setTimeout(() => { if (state.source === "demo") camera.show(); }, CAMERA_DELAY);
-  });
+    if (!isCamera) setTimeout(() => { if (state.source === "demo") camera.show(); }, CAMERA_DELAY);
+  }
+  $("#window").addEventListener("pointerdown", e => { const c = e.target.closest(CONTROL); if (c) play(c); });
+  $("#window").addEventListener("change", e => play(e.target));
   // Escape: no more hints this visit
   addEventListener("keydown", e => { if (e.key === "Escape") { tryMe.dismiss(); camera.dismiss(); } });
   setTimeout(() => {
