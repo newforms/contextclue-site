@@ -52,9 +52,11 @@ stage() {
   # caching rules, so browsers guess, and Timo's phone kept an old window.css after a publish (2026-10-18):
   # the page was new, its styles weren't. A new address each publish is fetched at once; between
   # publishes the cache still works. Only local files: an address with "//" in it is left alone.
+  # The folders are captured as one group around the repeat: a repeated group alone keeps only its last
+  # folder, which turned ../../tokens.css into ../tokens.css once help articles sat two deep (2026-11-11).
   version=$(git -C "$root" rev-parse --short HEAD)
   find "$tmp/site" -name '*.html' -print0 | while IFS= read -r -d '' page; do
-    sed -E -i.bak "s#(href|src)=\"([^\"/:]*/)*([^\"/:]+)\.(css|js)\"#\1=\"\2\3.\4?v=$version\"#g" "$page"
+    sed -E -i.bak "s#(href|src)=\"(([^\"/:]*/)*)([^\"/:]+)\.(css|js)\"#\1=\"\2\4.\5?v=$version\"#g" "$page"
     rm -f "$page.bak"
   done
 }
