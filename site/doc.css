@@ -1,0 +1,63 @@
+/* Document pages (the privacy policy, help): the page as one card in the site's frame, with the nav bar,
+   the footer and the phone layout from window.css. Moved here from the privacy page when help articles
+   joined it (2026-11-11), unchanged, so every document page shares one copy. */
+/* The document window: the app's frame (traffic lights, title at the left), with the policy inside */
+.doc-window { position: absolute; z-index: 1; left: 50%; top: calc(var(--menubar-h) + (100vh - var(--menubar-h)) / 2); transform: translate(-50%, -50%);
+  width: min(1100px, calc(100vw - 64px)); height: min(820px, calc(100vh - var(--menubar-h) - 64px));
+  display: flex; flex-direction: column; overflow: hidden; background: var(--window); border-radius: 16px; box-shadow: var(--window-shadow); color: var(--label); }
+.doc-window .titlebar { position: relative; flex: none; height: 40px; }
+.doc-body { flex: 1; overflow-y: auto; padding: 16px 48px 64px; }
+.doc { max-width: 620px; margin: 0 auto; font-size: 15px; line-height: 1.55; }
+.doc h1 { font-family: var(--font-rounded); font-size: 34px; line-height: 1.1; font-weight: 600; margin: 24px 0 6px; }
+.doc .meta { color: var(--label-2); font-size: 13px; margin: 0 0 32px; }
+.doc h2 { font-family: var(--font-rounded); font-size: 20px; line-height: 1.25; font-weight: 600; margin: 32px 0 8px; }
+.doc p { margin: 0 0 12px; }
+.doc a { color: var(--color-accent); }
+.doc .back { display: inline-block; margin-top: 32px; font-size: 13px; }
+#menubar a { color: inherit; text-decoration: none; }
+/* Phones: the window fills the width, without traffic lights, as the app window does there */
+@media (max-width: 699px) {
+  .doc-window { width: calc(100vw - 24px); height: calc(100vh - var(--menubar-h) - 24px); top: calc(var(--menubar-h) + 12px); transform: translateX(-50%); border-radius: 24px; }
+  .doc-window .lights { display: none; }
+  .doc-body { padding: 8px 20px 48px; }
+  .doc h1 { font-size: 28px; margin-top: 12px; }
+  #menubar > div:first-child a:not(.font-bold) { display: none; }
+}
+/* Phones with JavaScript: the home page's phone layout (window.css, .pared .mobile), with the policy
+   as one card in it: no title bar, the page scrolls, radius 30 and the same shadow (Timo, 2026-10-17) */
+.pared .mobile .doc-window { position: relative; left: auto; top: auto; transform: none; width: auto; height: auto; overflow: visible;
+  margin: calc(env(safe-area-inset-top) + 12px + 44px + 24px) 28px 40px; border-radius: 30px; box-shadow: var(--elevation); }
+.pared .doc-window .titlebar { display: none; }
+/* Desktop: the same card in a page that scrolls, as on phones and on the home page (Timo, 2026-10-17;
+   before, the card was pinned mid-screen and scrolled inside itself). Once the page has scrolled, the
+   nav bar and the footer contract to 16 past the card, as on the home page when the window is centred;
+   back at the top they widen again. The script sets the card's left edge and width. */
+html.pared, html.pared body { height: auto; overflow: visible; }
+.pared .desktop { position: relative; inset: auto; min-height: 100vh; display: flow-root; }
+.pared .desktop:not(.mobile) .doc-window { position: relative; left: auto; top: auto; transform: none; height: auto; overflow: visible;
+  margin: calc(12px + 44px + 24px) auto 24px; border-radius: 30px; box-shadow: var(--elevation); }
+.pared .desktop:not(.mobile) .doc-body { overflow: visible; }
+.pared .desktop.scrolled:not(.mobile) #menubar { left: calc(var(--content-left) - 16px); width: calc(var(--content-w) + 32px); }
+.pared .desktop.scrolled:not(.mobile) .app-menu { left: calc(var(--content-left) - 16px); }
+.pared .desktop.scrolled:not(.mobile) .site-footer { margin-left: calc(var(--content-left) - 16px); width: calc(var(--content-w) + 32px); }
+.pared .mobile .doc-body { overflow: visible; padding: 8px 24px 40px; }
+
+/* Help (2026-11-11). Articles keep to headings, paragraphs, a numbered list and pictures, so the same
+   content can go into a Help Book inside the app later. Pictures sit in the article's own folder. */
+.doc ol { list-style: decimal; margin: 0 0 12px; padding-left: 24px; }
+.doc li { margin: 0 0 8px; padding-left: 4px; }
+.doc figure { margin: 24px 0; }
+.doc figure img { display: block; width: 100%; height: auto; border-radius: 12px; }
+/* Until Timo's screenshots arrive: a box of the same kind, saying which picture goes there */
+.doc .placeholder { display: grid; place-items: center; aspect-ratio: 2 / 1; padding: 24px; border-radius: 12px;
+  background: var(--fill-quinary); outline: 1px dashed var(--separator); outline-offset: -1px;
+  color: var(--label-2); font-size: 13px; line-height: 1.4; text-align: center; }
+.doc .meta a { color: inherit; }
+/* The help index: one row per article, its title and a line on what it answers */
+.help-list { list-style: none; margin: 0; padding: 0; }
+.doc .help-list li { margin: 0; padding: 0; }
+.help-list a { display: block; margin: 0 -16px; padding: 12px 16px; border-radius: 12px; color: inherit; text-decoration: none;
+  transition: background-color .15s ease-in-out; }
+.help-list a:hover { background: var(--fill-quinary); }
+.help-list .title { display: block; font-family: var(--font-rounded); font-size: 17px; font-weight: 600; color: var(--color-accent); }
+.help-list .summary { display: block; color: var(--label-2); }

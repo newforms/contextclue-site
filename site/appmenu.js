@@ -1,4 +1,4 @@
-// Phones: the two-line button in the menu bar opens a small menu (Privacy Policy, Contact) and turns into
+// Phones: the two-line button in the menu bar opens a small menu (Privacy Policy, Help, Contact) and turns into
 // an X while it is open, after Apple's own site (Timo, 2026-10-16). On wider screens the button is hidden
 // and "Context Clue" links home, with the items beside it. Closes on a second tap, a tap elsewhere, Escape,
 // or widening past phone size. Shared by every page.

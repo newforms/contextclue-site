@@ -497,7 +497,7 @@ html.pared[data-theme=dark] { background: #1b1b1b; color-scheme: dark; }
   opacity: 0; transition: opacity .2s ease-in-out; pointer-events: none; }
 .pared .nav-title.shown { opacity: 1; }
 
-/* The menu button opens a small frosted menu (Home, Privacy Policy, Contact; appmenu.js), after Apple's
+/* The menu button opens a small frosted menu (Home, Privacy Policy, Help, Contact; appmenu.js), after Apple's
    own site (Timo, 2026-10-16). Open, the lines meet in the middle and then turn into an X; closing runs
    the same steps backwards. Each line is two boxes so the two steps can be timed apart: the span moves,
    the i turns. The glyph is the design's: two 14-wide lines, 8 apart. */

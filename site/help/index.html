@@ -1,0 +1,94 @@
+<!doctype html>
+<!-- Help: the list of articles (2026-11-11), a document page like the privacy policy (doc.css). Each
+     article lives in its own folder, and its address never changes once the app links to it. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Help · Context Clue</title>
+<meta name="description" content="Help with Context Clue: answers to common questions.">
+<!-- Link previews (iMessage, Slack, social networks): Open Graph, and X's own card type. The image is
+     Timo's 1200 × 630 (2026-10-18); a new image gets a new name, as apps keep previews for a long time. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Context Clue">
+<meta property="og:title" content="Help · Context Clue">
+<meta property="og:description" content="Help with Context Clue: answers to common questions.">
+<meta property="og:url" content="https://contextclue.app/help/">
+<meta property="og:image" content="https://contextclue.app/img/opengraph-1.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Context Clue: the app icon, the name and the Mac App Store badge beside the app's window, showing a video call with a small card of local time, place and weather.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" href="../favicon.png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../window.css">
+<link rel="stylesheet" href="../doc.css">
+</head>
+<body class="font-sans" style="font-family: var(--font-sans)">
+<div id="desktop" class="desktop" data-theme="light">
+  <header id="menubar">
+    <div style="display: flex; align-items: center; gap: 20px">
+      <button type="button" class="app-menu-button" id="appMenuButton" aria-label="Menu" aria-controls="appMenu" aria-expanded="false"><span><i></i></span><span><i></i></span></button>
+      <a class="font-bold app-name" href="../" style="font-weight: 700">Context Clue</a>
+      <a href="../privacy/">Privacy</a><a href="./" aria-current="page">Help</a><a href="#" data-u="eulctxetnoc" data-d="si.omit" data-subject="Context Clue">Contact</a>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px">
+      <button id="themeToggle" type="button" aria-label="Switch appearance" class="menubar-icon">
+        <svg class="theme-icon" id="themeIcon" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
+          <defs><clipPath id="aboveHorizon"><rect x="-4" y="-6" width="28" height="23.8"/></clipPath></defs>
+          <g clip-path="url(#aboveHorizon)">
+            <g class="sun"><circle cx="10" cy="9" r="3.4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10 1.4v2M10 14.6v2M2.4 9h2M15.6 9h2M4.6 3.6l1.4 1.4M14 13l1.4 1.4M4.6 14.4L6 13M14 5l1.4-1.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></g>
+            <g class="moon"><path transform="translate(10 9.4) scale(.86) translate(-10 -10)" d="M15.8 12.6A6.8 6.8 0 0 1 7.4 4.2a6.8 6.8 0 1 0 8.4 8.4z" fill="none" stroke="currentColor" stroke-width="1.86" stroke-linejoin="round"/></g>
+          </g>
+          <!-- One weight for everything: 1.6 (the moon is drawn at 0.86, so its stroke is 1.6 / 0.86) -->
+          <g class="horizon" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <line x1="10" y1="18.6" x2="1.4" y2="18.6" pathLength="1"/><line x1="10" y1="18.6" x2="18.6" y2="18.6" pathLength="1"/>
+          </g>
+        </svg>
+      </button>
+      <span id="menubarClock"></span>
+    </div>
+    <span class="nav-title" aria-hidden="true">Help</span>   <!-- phones: shown once the page title has scrolled under the bar -->
+  </header>
+  <!-- Phones: "Context Clue" opens this menu, as the app menu does on a Mac (appmenu.js) -->
+  <nav class="app-menu" id="appMenu" aria-label="Context Clue">
+    <a href="../">Home</a>
+    <a href="../privacy/">Privacy Policy</a>
+    <a href="./" aria-current="page">Help</a>
+    <a href="#" data-u="eulctxetnoc" data-d="si.omit" data-subject="Context Clue">Contact</a>
+  </nav>
+
+  <div class="safari-tint" aria-hidden="true"></div>   <!-- the colour Safari tints its status bar strip with (window.css) -->
+  <div class="top-blur" aria-hidden="true"></div>
+  <main class="doc-window" aria-labelledby="docTitle">
+    <div class="titlebar">
+      <span class="lights" aria-hidden="true"><i class="red"></i><i class="yellow"></i><i class="green"></i></span>
+      <span class="title">Help</span>
+    </div>
+    <div class="doc-body">
+      <article class="doc">
+        <h1 id="docTitle">Help</h1>
+        <p class="meta">Context Clue</p>
+
+        <ul class="help-list">
+          <li><a href="blurry-card/"><span class="title">Is your card blurry in your meeting?</span><span class="summary">Portrait or a background from Video Effects can blur the card. How to fix it in under a minute.</span></a></li>
+        </ul>
+
+        <p style="margin-top: 32px">Can’t find what you need? Write to <a class="email-text" href="#" data-u="eulctxetnoc" data-d="si.omit" data-subject="Context Clue">contextclue at timo dot is</a>.</p>
+
+        <a class="back" href="../">← Home</a>
+      </article>
+    </div>
+  </main>
+  <!-- Footer: a bar like the nav bar, across the page (Timo, 2026-10-17); the two lines stack when they
+       don't fit side by side -->
+  <footer class="site-footer"><span>Built with <button type="button" class="love" aria-pressed="false"><span class="love-word">love</span><span class="love-heart" aria-hidden="true">❤️</span></button> in <span class="place-long">Los Angeles</span><span class="place-short">LA</span></span><span>© 2026 Timo Kuhn</span></footer>
+</div>
+<script src="../theme.js"></script>
+<script src="../doc.js"></script>
+<script src="../email.js"></script>
+<script src="../appmenu.js"></script>
+<script src="../love.js"></script>
+</body>
+</html>
