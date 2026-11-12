@@ -33,7 +33,12 @@
    nav bar and the footer contract to 16 past the card, as on the home page when the window is centred;
    back at the top they widen again. The script sets the card's left edge and width. */
 html.pared, html.pared body { height: auto; overflow: visible; }
-.pared .desktop { position: relative; inset: auto; min-height: 100vh; display: flow-root; }
+/* A column at least the window's height, so on a short page (the help list) the footer sits at the bottom
+   of the window instead of right under the card (Timo, 2026-11-11). On a long page the auto margin is
+   zero and nothing moves. The fixed bars are out of the flow and unaffected. dvh where it exists: Safari's
+   vh is the height with its toolbar hidden, which would leave the footer under the toolbar. */
+.pared .desktop { position: relative; inset: auto; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
+.pared .desktop .site-footer { margin-top: auto; }
 .pared .desktop:not(.mobile) .doc-window { position: relative; left: auto; top: auto; transform: none; height: auto; overflow: visible;
   margin: calc(12px + 44px + 24px) auto 24px; border-radius: 30px; box-shadow: var(--elevation); }
 .pared .desktop:not(.mobile) .doc-body { overflow: visible; }
